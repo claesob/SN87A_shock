@@ -1,6 +1,5 @@
-Shock code for Science paper C. Fransson et al (2024), based on
-Chevalier & Fransson (1994), but with a major upgrade of the atomic
-data, as well as method.
+Shock code based on Chevalier & Fransson (1994), but with a major 
+upgrade of the atomic data, as well as method.
 
 This code, for historic reasons in Fortran 77, is used to calculate
 the line luminosities from a steady state shock in a metal rich plasma. 
