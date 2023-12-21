@@ -1,0 +1,13 @@
+      1     3s2.3p4                           3  P    2.0          0.000          0.000
+      2     3s2.3p4                           3  P    1.0       2404.700          0.000
+      3     3s2.3p4                           3  P    0.0       3275.600          0.000
+      4     3s2.3p4                           1  D    2.0      18830.300      18963.000
+      5     3s2.3p4                           1  S    0.0      43836.500      42754.000
+ -1
+%filename: ca_5.elvlc
+%Observed energies: v.3.0.3 of the online NIST database
+%theoretical energies: Galavis, M.E., Mendoza, C., Zeippen, C.J. 1995, A&ASS 111, 347
+%comment: The theoretical energies are from Table 3 of Galavis et al. and are for LS states.
+% produced as part of the Arcetri/Cambridge/NRL 'CHIANTI' atomic data base collaboration
+%
+%   Peter Young   -   9-Jun-2006

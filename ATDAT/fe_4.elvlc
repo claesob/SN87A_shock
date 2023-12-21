@@ -1,0 +1,48 @@
+      1     3d5                               6  S    2.5          0.000          0.000
+      2     3d5                               4  G    5.5      32245.500      32245.500
+      3     3d5                               4  G    4.5      32292.800      32292.800
+      4     3d5                               4  G    2.5      32301.200      32301.200
+      5     3d5                               4  G    3.5      32305.700      32305.700
+      6     3d5                               4  P    2.5      35253.800      35253.800
+      7     3d5                               4  P    1.5      35333.300      35333.300
+      8     3d5                               4  P    0.5      35406.600      35406.600
+      9     3d5                               4  D    3.5      38779.400      38779.400
+     10     3d5                               4  D    0.5      38896.700      38896.700
+     11     3d5                               4  D    2.5      38935.100      38935.100
+     12     3d5                               4  D    1.5      38938.200      38938.200
+     13     3d5                               2  I    5.5      47078.600      47078.600
+     14     3d5                               2  I    6.5      47090.500      47090.500
+     15     3d5 (3)                           2  D    2.5      49541.500      49541.500
+     16     3d5 (3)                           2  D    1.5      50051.400      50051.400
+     17     3d5 (2)                           2  F    3.5      51394.200      51394.200
+     18     3d5 (2)                           2  F    2.5      52166.700      52166.700
+     19     3d5                               4  F    4.5      52620.700      52620.700
+     20     3d5                               4  F    3.5      52695.400      52695.400
+     21     3d5                               4  F    1.5      52837.100      52837.100
+     22     3d5                               4  F    2.5      52838.000      52838.000
+     23     3d5                               2  H    4.5      56058.300      56058.300
+     24     3d5                               2  H    5.5      56368.800      56368.800
+     25     3d5 (2)                           2  G    3.5      57408.000      57408.000
+     26     3d5 (2)                           2  G    4.5      57721.200      57721.200
+     27     3d5 (1)                           2  F    2.5      61156.500      61156.500
+     28     3d5 (1)                           2  F    3.5      61254.400      61254.400
+     29     3d5                               2  S    0.5      66720.100      66720.100
+     30     3d5 (2)                           2  D    1.5      74096.600      74096.600
+     31     3d5 (2)                           2  D    2.5      74133.100      74133.100
+     32     3d5 (1)                           2  G    4.5      82894.900      82894.900
+     33     3d5 (1)                           2  G    3.5      82897.300      82897.300
+     34     3d5                               2  P    1.5     100118.000     100118.000
+     35     3d5                               2  P    0.5     100126.000     100126.000
+     36     3d5 (1)                           2  D    2.5     108242.100     108242.100
+     37     3d5 (1)                           2  D    1.5     108258.300     108258.300
+ -1
+%filename: fe_4.elvlc
+%observed energies: Version 3 of the NIST Atomic Spectra Database
+   Available from http://physics.nist.gov/PhysRefData/ASD/index.html
+%theoretical energies: These were not provided by Zhang & Pradhan (1997) so observed energies are used.
+%comment: The numbers in brackets in the configuration column differentiate duplicate
+   terms in the configuration. E.g., there are three 2D terms in the 3d5
+   configuration. The numbering duplicates that at NIST.
+% produced as part of the Arcetri/Cambridge/NRL 'CHIANTI' atomic data base collaboration
+%
+%   Peter Young, 31-Aug-2009
