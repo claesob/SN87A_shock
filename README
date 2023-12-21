@@ -2,17 +2,23 @@ Shock code for Science paper C. Fransson et al (2024), based on
 Chevalier & Fransson (1994), but with a major upgrade of the atomic
 data, as well as method.
 
-This code, for historic reasons in Fortran 77, was used to calculate
-the line luminosities from a shock for the Science paper 'Ionizing
-radiation from a compact object in SN 1987A'. H or He are not included
-in this version. No shock precursor is calculated. The ionization
-stages are set in the program. Input file called shock_input.txt is
-included. Input parameters are then the pre-shock density (in ccm),
-the shock velocity in km/s and the ionization time scale.
+This code, for historic reasons in Fortran 77, is used to calculate
+the line luminosities from a steady state shock in a metal rich plasma. 
+H or He are not included in this version, and no shock precursor is calculated. 
+The ionization stages entyering the shock are set in the program. 
 
-The 500 strongest lines are found in strong_lines_100.txt and the
-ionization and temperature structure in struc.100, where xxx is the
-model number (3 digits). These are set in the shock_input.txt These
+For compiling just run make onm the Makefile, where the options for 
+the compiler are set. The compile code is called shock. 
+
+An input file called shock_input.txt is included where different parameters 
+of the calculation are set. When running the code the pre-shock density (in ccm),
+the shock velocity in km/s and the ionization time scale are asked for. 
+The B-field is set in 'trans()' in the file timed_hydro_shock.f. In this 
+version the maximum number of depth points is 350. 
+
+As output the 500 strongest lines are found in 'strong_lines_100.txt' and the
+ionization and temperature structure in 'struc.100', where 100 is the
+model number (3 digits). This is set in shock_input.txt These
 files are included for the case 10^3 ccm, 75 km/s, 1.e15 s/ccm. For
 other parameters especially the time step has to be adjusted.
 
