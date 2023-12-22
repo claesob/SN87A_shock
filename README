@@ -6,11 +6,12 @@ the line luminosities from a steady state shock in a metal rich plasma.
 H or He are not included in this version, and no shock precursor is calculated. 
 The ionization stages entyering the shock are set in the program. 
 
-For compiling just run make onm the Makefile, where the options for 
-the compiler are set. The compile code is called shock. 
+For compiling just run make on the Makefile, where the options for 
+the compiler are set. The compiled code is called shock. 
 
 An input file called shock_input.txt is included where different parameters 
-of the calculation are set. When running the code the pre-shock density (in ccm),
+of the calculation are set. Most of these do not need any change. 
+When running the code the pre-shock density (in ccm),
 the shock velocity in km/s and the ionization time scale are asked for. 
 The B-field is set in 'trans()' in the file timed_hydro_shock.f. In this 
 version the maximum number of depth points is 350. 
