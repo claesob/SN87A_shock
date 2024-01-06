@@ -744,12 +744,12 @@ c!!
       ipwn=1
       if(ipwn==1) then
          write(6,*)'Core composition '
-         open(21,file='./EXTRAS/average_abundances_by_num_19M.dat',status='old')
+         open(21,file='average_abundances_by_num_19M.dat',status='old')
          
 c     izone: O-Ne-Mg = 1; O-Si-Mg = 2; O(0.61)-Si-S = 3;  O(0.56)-Si-S = 4;
-c                 O(0.46)-Si-S = 5; O(0.16)-Si-S = 7; Si-S-Ar = 8
+c                 O(0.46)-Si-S = 5; O(0.16)-Si-S = 6; Si-S-Ar = 7
          izone=3
-         do iz=1,8
+         do iz=1,7
             read(21,*)zone_mass,(abn(i),i=1,14)
             if(iz==izone) then
                goto 333
