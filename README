@@ -16,8 +16,8 @@ the shock velocity in km/s and the ionization time scale are asked for.
 The B-field is set in 'trans()' in the file timed_hydro_shock.f. In this 
 version the maximum number of depth points is 350. 
 
-As output the 500 strongest lines are found in 'strong_lines_100.txt' and the
-ionization and temperature structure in 'struc.100', where 100 is the
+As output the 500 strongest lines are found in 'strong_lines_110.txt' and the
+ionization and temperature structure in 'struc.110', where 100 is the
 model number (3 digits). This is set in shock_input.txt These
 files are included for the case 10^3 ccm, 75 km/s, 1.e15 s/ccm. For
 other parameters especially the time step has to be adjusted.
