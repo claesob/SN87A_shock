@@ -140,6 +140,8 @@ c NOTE! zion(iel,ion,i) here iel=1-14
                ztot2= zion(iel,ion,i) + ztot2
                ztot(ion)=ztot2
             enddo
+c            write(6,912)iel,ion,i,ztot(ion),alrec(izmax,ion+1),collion(izmax,i)
+ 912        format('ztot,al,coll ',3i5,1pe12.3,10e12.3)            
          enddo
          ztot(izmax+1)=0.
 
@@ -223,6 +225,8 @@ c number of columns in matrix incl RHS
                x(i)=xold(i)/2.
             endif
             xion(ik,iel,i) = x(i)
+c            write(6,911)iel,ion,i,x(i)
+ 911        format('ion bal ',3i5,1pe12.3)
             if(xion(ik,iel,i).gt.1.01) then
                ierr=1
             endif
@@ -232,43 +236,6 @@ c number of columns in matrix incl RHS
       end
 
 
-
-      
-      subroutine ionization_h_he(ik,dt,dent,denel,
-     &     photok,xel,ze)
-      implicit real*8(a-h,o-z)
-      PARAMETER (NL=340,NLP1=NL+1)
-      include 'PARAM'
-      common/ionx/xion(md,14,27)
-      common/ionxold/te_old(md),xion_old(md,14,27)
-      common/abl/abn(15)
-      common/timecheck/time,itime
-      COMMON/RECAL/RECO(NL)
-      COMMON/HPOP/XN(6,NL),XN1,XN2,XN3
-      common/rec_coll/alrec(30,30),collion(30,30),ction(14,27)
-      common/debug/ideb
-      dimension nionel(14)
-      data nionel/1,2,6,7,8,10,11,12,13,14,16,18,20,26/
-      dimension photok(14,26)
-      dimension AA(nlp1,nlp1),X(nl)
-      dimension dx(nl)
-
-      do i=1,6
-         x(i)=1.e-30
-      enddo
-      xion(ik,1,1) = x(1)
-      
-      xion(ik,1,2) = x(2) 
-      
-      xion(ik,2,1) = x(3) 
-      
-      xion(ik,2,2) = x(4) 
-      
-      xion(ik,2,3) = x(5)
-
-      return
-
-      end
 
       subroutine ctionrate(ik,te,ction)
       implicit real*8(a-h,o-z)
@@ -285,69 +252,9 @@ c      data nionel/1,2,6,7,8,8,2,3,4,14,10,6,2,15/
 
       t4 = te/1.e4
 
-      do iel=1,14
-
-         do i=1,nionel(iel)
-
-            ction(iel,i) = 0.
-            
-         enddo
-         
-      enddo
-
-      xhii = xion(ik,1,2)*abn(1)
-c!!
-c      xhii=0.
-
-c O I + H II FS 71
-
-      ction(5,1) = 1.04E-9  * xhii
-
-c Na I + H II
-
-c charge transfer ionization of Na I with H II from 3S at 8000K
-c rate from Natta & Giovardi ApJ 356, 646 -90
-
-      ction(7,1) = 4.d-11*xhii
- 
-
-C     CT IONIZATION OF FE I BY H II
-C     FROM WATSON IN LES HOUCHES 1974 ATOMIC AND MOLECULAR... P 257
-C!    OBS! RATE IS AT 300 K
-c!!  fudge factor skip!!
-      fac=1.
-
-      ction(14,1) = fac*7.4E-9*xhii
-
-C     CT IONIZATION OF FE II BY H II
-C     FROM D A NEUFELD AND A. DALGARNO, PR A 35, 3142 (1987)
-      ction(14,2) = 2.3E-9*EXP(-3.0054/T4)*xhii
-
-c include CT reactions from oak ridge data base
-c this includes the reactions above
-
       do iel=3,14
          do ion=1,nionel(iel)
-
-            if(ion.le.3)  then
-
-               call convrtel(iel,nelem)
-
-               if(CTIonp(1,ion,nelem).gt.0.) then
-                  
-                  ction(iel,ion) = HCTIon(ion,nelem,te)*xhii
-
-               else
-                  
-                  ction(iel,ion) = 0.
-
-               endif
-
-            else
-
-               ction(iel,ion)=0.
-
-            endif
+            ction(iel,ion)=0.
          enddo
       enddo
 
@@ -459,8 +366,8 @@ c    and having l- or m-shells
       data pi/3.1415926e0/,elch/1.60219e-12/,amu/1.660531e-24/
       ikold=0
 
-      call rateaug(1,1)
-      call rateaug(2,2)
+c      call rateaug(1,1)
+c      call rateaug(2,2)
       call rateaug(6,6)
       call rateaug(7,7)
       call rateaug(8,8)
@@ -489,7 +396,7 @@ C
 C     DETERMINE THE LOWER AND UPPER LIMIT IN ENERGY FOR THE INTEGRATION
 C           OF THE PHOTOIONIZATION RATES
 C
-         do iel=1,14
+         do iel=3,14
             do iz=1,nionel(iel)
                
                ZKT(iel,iz)=0.
@@ -506,7 +413,7 @@ C
          enddo
 
 
-         do iel=1,14
+         do iel=3,14
             do iz=1,nionel(iel)
 
                ZA=0.
@@ -539,7 +446,7 @@ C
 
       dphmax=0.
 
-      do iel=1,14
+      do iel=3,14
          do iz=1,nionel(iel)
             GAA=0.0E0
             ZA=0.0E0
@@ -762,13 +669,13 @@ c
 c 1 = H, 2 = He, 3 = C, 4 = N, 5 = O, 6 = Ne, 7 = Na, 8 = Mg, 
 c 9 = Al, 10 = Si, 11 = S, 12 = Ar, 13 = Ca, 14 = Fe
 
-      do iel=1,14
+      do iel=3,14
          do iz=1,nionel(iel)
             photok(iel,iz)=0.
             photolm(iel,iz)=0.
          enddo
       enddo
-      do iel=1,14
+      do iel=3,14
          do iz=1,nionel(iel)
             photok(iel,iz)=zk(iel,iz)
             photolm(iel,iz)=ze(iel,iz)
@@ -831,35 +738,6 @@ C           AVERAGE OVER THE ENERGY INTERVAL
       RETURN
       END
 
-c$$$      SUBROUTINE RECEX(Z,J,N,TE,RECO)
-c$$$      IMPLICIT REAL*8(A-H,O-Z)
-c$$$c
-c$$$c NOT USED! REPLACED BY RECR above       
-c$$$C      ***********************************************************
-c$$$C      *****
-c$$$C     THIS ROUTINE CALCULATES THE REC. EMISSION DUE TO EXCITED STATES
-c$$$C     USING A HYDROGENIC APPROXIMATION AND UNIT GAUNT FACTOR.
-c$$$C     Z = CHARGE
-c$$$C     J = ENERGY BIN
-c$$$C     N = LEVEL
-c$$$C      *****
-c$$$C      ***********************************************************
-c$$$      include 'param'
-c$$$c      PARAMETER (NE1=-100,NE2=250,NE3=NE2+1)
-c$$$      COMMON/INT/FL(2,NE1:NE2),SI(14,27,NE1:NE2),E1(NE1:NE3),E(NE1:NE3)
-c$$$      COMMON/mdIND/kradius
-c$$$      GAUNT=gbf(n,e1(j))
-c$$$      RN=DBLE(N)
-c$$$      RIZ=13.597*Z**2./RN**2.
-c$$$      TEV=TE/1.1609E4
-c$$$      EX=ABS((RIZ-E1(J))/TEV)
-c$$$      RECO=0.
-c$$$      IF(EX.LT.100.) THEN
-c$$$            RECO=4.*3.14159*4.1478E-19*Z**4.*GAUNT*
-c$$$     &                  EXP((RIZ-E1(J))/TEV)/(RN**3.*TE**1.5)
-c$$$      ENDIF
-c$$$      RETURN
-c$$$      END
 
       SUBROUTINE XIONS(X,CHI)
 C

@@ -429,7 +429,10 @@ C!!   ASSUME MEAN ATOMIC WEIGHT = 20.
       DO I=2,N         
          DO J=1,I-1
             WOBS(I,J)=1.602E-12*Z*(E(I)-E(J))*X(I)*A(I,J)*BE(I,J)/DEN
-            EM(I,J)=WOBS(I,J)
+c     EM(I,J)=WOBS(I,J)
+            EM(I,J)=1.602E-12*Z*(E(I)-E(J))*
+     &           (X(J)*C(J,I)-X(I)*C(I,J))/DENEL
+
             IF(K.le.400.and.a(i,j).gt.0.) then
                K=K+1
                SR(K)=0.

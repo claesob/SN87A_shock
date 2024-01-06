@@ -102,7 +102,7 @@ C     IF KS=1 THEN USE K-SHELL CROSSECTION
 
       if(initdi.eq.0) then
       INITDI=1
-      OPEN(39,FILE='./ATDAT/diel.dat')
+      OPEN(39,FILE='diel.dat')
       do k=1,100
          read(39,*,end=88)IOION(k),WLDR(k),ar(k),BD(k),cr(k),dr(k),er(k)
       enddo

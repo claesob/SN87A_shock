@@ -878,16 +878,6 @@ c     mean int. at shock
 
  777  continue
 
-c$$$      if(ipre==1) then
-c$$$         xtot(1)=-1.e8
-c$$$         xtot(2)=-1.e8
-c$$$         istat=1
-c$$$c!!!  231030
-c$$$         dt=-1.e2
-c$$$         write(6,*)' Pre-ionization put xtot slightly neg.',ns,xtot(ns),dt
-c$$$      else
-c$$$         istat=0
-c$$$      endif
       l_list= 25 
       
       IF(ISTAT.EQ.1) then
@@ -899,10 +889,7 @@ c     a21*wl**3 * c/8 * pi * vterm
          C33=1.3263E-21*CV*RMAX
       endif
 
-      
-c$$$      write(6,*)' New iteration: lambda= ',lambda,' k, ipre= ',ipre,k
-c$$$      write(75,*)' New iteration: lambda= ',lambda
-
+     
       if(icsm==1.and.ipre==1) then
          r(k)=rshock_cgs
          iss=1
@@ -1201,16 +1188,7 @@ c     index?
 
             enddo
 
-         endif
-
-c$$$      elseif(icsm==1.and.ipre==1) then
-c$$$
-c$$$         xtot(2)=r(k-1)
-c$$$
-c$$$         xtot(2) = rshock_cgs
-c$$$
-c$$$         write(6,*)' xtot(2),r(k-1),r(k) ',xtot(2),r(k-1),r(k)
-         
+         endif         
       endif
 
       tdiff = 0.
@@ -1243,6 +1221,7 @@ c??!!
       ispec=1
 
       itimediff=0
+      nshock=0
 
       do itime=1,100000
 
@@ -1406,7 +1385,6 @@ c     dr(ns) = rcgsi(ns-1)-rcgsi(ns)
             xe(ns)=xe0
             te(ns)=1.e5
 
-c$$$            if(ipre==0) then
                hold(ns) = h0
 
                write(6,*)' entalpi hold a ',h0
@@ -1441,44 +1419,6 @@ c               write(6,*)' step 1 r(k) init ',k,ns,r(k)
                den1 = den(ns)
                te(ns)=p/(1.38e-16*(ne(ns)+nion(ns)))
 
-c$$$            elseif(ipre==1.and.icsm==1) then
-c$$$c does not apply to 87a!               
-c$$$c     den(ns)=dmdt/(4.*pi*r(k)**2*uwind*amean*amu)
-c$$$c     dencgs=dmdt/(4.*pi*r(k)**2*uwind)
-c$$$c     if(r(k) > r_precursor ) then
-c$$$c     den(ns)=den(ns)/prec_boost
-c$$$c     dencgs=dencgs/prec_boost
-c$$$c     endif
-c$$$               x=(r(k)-r_precursor)/r_precursor
-c$$$               dblog=prec_boost*(atan(x/ramp)/pi+1/2.)
-c$$$               denslog=densi_rs_log-2.*log10(r(k)/r_precursor)-dblog
-c$$$               den(ns)=10.**denslog
-c$$$               dencgs=den(ns)*amean*amu
-c$$$               dens(ns)=den(ns)
-c$$$               nion(ns)=dencgs/(amu*amean)
-c$$$               ne(ns)=nion(ns)*xe(ns)
-c$$$               write(6,9261)k,dmdt,r(k),amean,
-c$$$     &              den(ns),ne(ns)
-c$$$ 9261          format(' new wind shell a ',i6,1pe12.3,10e12.3)
-c$$$
-c$$$            elseif(ipre==1.and.icsm==0) then
-c$$$c does not apply to 87a!               
-c$$$c     den(ns)=dmdt/(4.*pi*r(k)**2*uwind*amean*amu)
-c$$$c     dencgs=dmdt/(4.*pi*r(k)**2*uwind)
-c$$$c     if(r(k) > r_precursor ) then
-c$$$c     den(ns)=den(ns)/prec_boost
-c$$$c     dencgs=dencgs/prec_boost
-c$$$c     endif
-c$$$
-c$$$               den(ns)=dnum0
-c$$$               dencgs=den(ns)*amean*amu
-c$$$               dens(ns)=den(ns)
-c$$$               nion(ns)=dencgs/(amu*amean)
-c$$$               ne(ns)=nion(ns)*xe(ns)
-c$$$               write(6,9563)k,dmdt,r(k),amean,
-c$$$     &              den(ns),ne(ns)
-c$$$ 9563          format(' new preion shell a ',i6,1pe12.3,10e12.3)
-c$$$            endif
 
             des2 = nion(ns)
             des1 = des2
@@ -1501,9 +1441,6 @@ c$$$            endif
             do iel=3,14
 
                sumx=0.
-
-c     if(lambda.eq.1) then
-c     if(lambda.ge.1) then
                if(ipre.le.1.and.lambda.eq.1) then
 
                   do j=1,nionel(iel)+1
@@ -1515,7 +1452,6 @@ c     if(lambda.ge.1) then
                      else 
                         xion(ns,iel,j)=1.e-10
                      endif
-c     sumx=sumx+xion(ns,iel,j)
                   enddo
                   xion(ns,1,2)=1.0
                   xion(ns,1,1)=1.e-3
@@ -1766,16 +1702,11 @@ c     check if optical depth change > taudmax or other conditions for a new shel
             if(taudiff.gt.taudmax.or.itimediff.gt.20.or.tediff.gt.temax.
      &           or.(ipre.eq.1.and.lambda.eq.1).or.ratio_r.gt.0.02.
      &           or.iss.eq.1) then
-c$$$               write(6,*)'taudiff/taudmax ',taudiff/taudmax            
-c$$$               write(6,*)'itimediff ',itimediff
-c$$$               write(6,*)'tediff,temax ',tediff,temax
-c$$$               write(6,*)'ratio_r ',ratio_r
-               
                ITIMEDIFF=0
                TEMPOLD = TE(NS)
-C               WRITE(6,*)' TE(NS) Q1 ',NS,TE(NS)
 
                IF(IPRE.EQ.1.AND.ITIME.EQ.1.AND.LAMBDA.EQ.1) THEN
+                  write(0,*)'ipre,itime,lambda ',ipre,itime,lambda,k
 C     SHOCK!!
                   K = NSHOCK
                   WRITE(6,*)' K = NSHOCK ',K
@@ -1795,6 +1726,7 @@ c               WRITE(6,*)'XTOT,R,TE AFT SHOCK AND BEF PRE-SHOCK ',NSHOCK
                   CALL SORT(IK,100,0)
                   L_LIST=L_LIST+5
                ENDIF
+
                DO II=1,NSHOCK
                   WRITE(6,9981)II,XTOT(II),R(II),TE(II)
  9981             FORMAT(I5,1PE20.12,E20.12,E12.3)
@@ -2016,36 +1948,7 @@ C     OPTICAL DEPTH FROM SHOCK IN CURRENT ITERATION
 
             ENDIF
 
-            IF(ISP.EQ.0.AND.LAMBDA.EQ.1) THEN
-
-               IF(INITISP.EQ.1) THEN
-                  INITISP=0
-
-C     SAVE MEAN INTENSITY AND OPTICAL DEPTH FOR SIMPLE CALC.
-
-                  WRITE(6,*)' SAVED SPECTRUM ',K
-                  IF(IDEB.EQ.1) WRITE(0,*)' SAVED SPECTRUM ',K
-
-                  DO J=JMIN,JJ
-                     
-                     FLS(J)=FL(2,J)
-                     TAUS(J) = TAUTOT(K,J)
-                     WRITE(6,9288)J,TAUS(J),FLS(J)
- 9288                FORMAT(' SAVED SP ',I5,1PE12.3,10E12.3)
-
-                  ENDDO
-
-               ENDIF
-
-               WRITE(6,*)' RADSIMP I,K ', IK,K
-
-               CALL RADSIMP(K,TAUS,FLS)
-
-            ENDIF
-
-
          ENDIF
-
 
          CF = COOLF(I,K,ISHOCK,ISS,DT,TE(I),DENS(I),XE(I),
      &        PHOTOK,PHOTOLM)
@@ -2542,17 +2445,7 @@ c Obs! Sobolev evrerywhere!!!
 
       endif
 
-c$$$      write(6,*)'Ionization balance at i= ',i,k
-c$$$      do iel=3,14
-c$$$         write(6,9138)iel,(xion(ik,iel,iz),iz=1,nionel(iel)+1)
-c$$$ 9138    format(' xion ',i5,1pe12.3,28e12.3)
-c$$$      enddo
       dist_fr_sh(k)=xtot(i)
-c$$$      write(6,91)itime,k,i,dist_fr_sh(k),time,dr(k),xc,u,p,nion(i),ne(i),
-c$$$     &     xe(i),tautot(k,3),cool1,te(i),
-c$$$     &     (xion(i,1,iz),iz=1,2),(xion(i,2,iz),iz=1,3),
-c$$$     &     (xion(i,5,iz),iz=1,8),
-c$$$     &     (xion(i,14,iz),iz=1,18)
       if(icsm==1.and.ipre==0) then
          rabs=rshock_cgs-xtot(i)
       elseif(icsm==1.and.ipre==1) then
@@ -2564,33 +2457,12 @@ c     Fe I=28, XXVI=53, Si I=54, XIV=67, S I=68, XVI=83, Ar I=84, Ar XX=101, Ca 
      &     tautot(k,3),cool1,te(i),
      &     (xion(i,5,ion),ion=1,8),(xion(i,10,ion),ion=1,14),
      &     (xion(i,11,ion),ion=1,16),(xion(i,12,ion),ion=1,18),
-     &     (xion(i,13,ion),ion=1,10),(xion(i,14,ion),ion=1,14)
+     &     (xion(i,13,ion),ion=1,10),(xion(i,14,ion),ion=1,14),
+     &     (xion(i,6,ion),ion=1,10)
+c O 6-13, Si 14-27, S 28-43, Ar 44-61, Ca 62-66, Fe 67-80, Ne 81-90      
  9291 format(i4,1pe15.7,3e11.3,131e11.3)
-c$$$      write(56,9562)itime,k,ipre,rabs,xtot(i),time,xc,u,p,nion(i),ne(i),
-c$$$     &     xe(i),tautot(k,3),cool1,te(i),
-c$$$     &     (xion(i,1,iz),iz=1,2),(xion(i,2,iz),iz=1,3),
-c$$$     &     (xion(i,5,iz),iz=1,8),(xion(i,14,iz),iz=1,26),
-c$$$     &     (xion(i,10,iz),iz=1,14),
-c$$$     &     (xion(i,11,iz),iz=1,16),(xion(i,12,iz),iz=1,18),
-c$$$     &     (xion(i,13,iz),iz=1,20)
       iz=2
-c$$$      write(6,*)'T = ,H =15-16,, He=17-19, O=20-27, Fe=28-63, Si=64-77, S=78-93, Ar=94-111, Ca=112-131'
-c$$$      write(6,9481)xion(i,1,iz),xion(i,2,iz),
-c$$$     &     xion(i,5,iz),xion(i,14,iz),
-c$$$     &     xion(i,10,iz),xion(i,11,iz),xion(i,12,iz),xion(i,13,iz)
-c$$$ 9481 format(' First ion',1pe11.3,20e11.3)
-c$$$ 9562 format(3i7,1pe22.14,2e18.9,1pe11.3,150e11.3)
-c$$$c     if(ideb.eq.1) write(0,91)itime,k,xtot(i),time,dr(k),xc,u,p,nion(i),ne(i),
-c$$$c     &           xe(i),tautot(k,3),cool1,te(i),(xion(i,5,iz),iz=1,8),
-c$$$c     &           (xion(i,1,iz),iz=1,2),(xion(i,2,iz),iz=1,3)
-c$$$
-c$$$c     if(ideb.eq.1) write(0,9991)itime,k,xtot(i),time,xc,nion(i),te(i),fl(2,3),
-c$$$c     &           fl(2,105),fl(2,142),fl(2,211),fl(2,256),fl(2,315)
-c$$$      write(6,9122)ik,decool,totem
-c$$$ 91   format('x,xc ',3i7,1pe18.10,1e15.7,450e12.3)
-c$$$ 9991 format('x,sp ',2i7,1pe16.7,1e15.7,20e12.3)
-c$$$ 9122 format('decool,emtot',i7,1pe15.7,1e15.7,10e12.3)
-c$$$      write(6,*)'xion g ',(xion(i,1,iz),iz=1,2)
+
       hold(i)= h
 
       if(ns.ge.4) then
@@ -2700,105 +2572,11 @@ c     main time step loop stops just here!
 
 
  2321 imode = 2
-
-c     save last point
-
-      k = k+1
-
-      if(k.ge.md) stop
-
-      r(k) = xtot(ns)
-
-      rtr(2,k) = r(k)
-      drtr(2,k) = r(k)- r(k-1)
-      dentr(2,k) = dens(ns)
-
-c     extra step for last point 
-      do iel=1,14
-         do iz=1,nionel(iel)+1
-            coltr(2,k,iel,iz) = coltottemp(iel,iz)
-         enddo
-      enddo
-
-      ik = k
-c???
-      ik = i
-
-      do iel=1,14
-         do j=1,nionel(iel)+1
-            xion(k,iel,j)=xion(ns,iel,j)
-         enddo
-      enddo
-
-      call elecdens(k,xe(k),zelec)
-
-      call emiss(te(ns),xe(ns),dentr(2,k))
-
-      call emiss_cont(te(ns),xe(ns),dentr(2,k),cooli)
-
-      iqq=3
-      call opac_source(iqq,1,drtr(2,k),dentr(2,k),te(i),xe(i))
-
-c     save opacities
-
-      do j=jmin,jj
-         copac(k,j) = ta(j)
-      enddo
-
       if(lambda.eq.1.and.ipp.eq.0) then
 
          ipp = 1
 
          nshock = k
-
-
-         write(6,*)' before renum ',k
-
-         do ij=1,nshock
-            do j=jmin,jj
-               tautots(ij,j) = tautot(ij,j)
-               sources(ij,j) = s(ij,j)
-               ems(ij,j) = em(ij,j)
-               emcs(ij,j) = emc(ij,j)
-               if(ij.eq.2) then                  
-               endif
-               copacs(ij,j) = copac(ij,j)
-            enddo
-            rs(ij) = rtr(2,ij)
-            drs(ij) = drtr(2,ij)
-            densave(ij) = dentr(2,ij)
-
-            do iel=1,14
-               do iz=1,nionel(iel)+1
-                  coltrs(ij,iel,iz) = coltr(2,ij,iel,iz)
-               enddo
-            enddo
-
-         enddo
-
-c     now renumber with i=1 at post shock boundary and i=nshock at shock
-         call renum(k,nshock)
-         
-         write(6,*)' after renum ',nshock
-         write(6,*)' em f ',k,emc(k,3),em(k,3)
-
-         jx=-28
-
-         write(6,*)' after inversion in trans'
-         do ij=1,nshock
-c     if(i.lt.5.or.i.gt.nshock-5) then
-            write(6,9232)ij,r(ij),xtot(ij),rtr(2,ij),drtr(2,ij),
-     &           dentr(2,ij),tautot(ij,jx),em(ij,jx),copac(ij,jx),
-     &           s(ij,jx),coltr(2,ij,1,1)
- 9232       format('i,r,xtot,rtr,drtr,dentr,tautot,em,cop,s,N ',i5,1pe15.7,10e12.3)
-c            endif
-         enddo
-
-
-         
-
-         
-
          write(6,*)' To emlines_new at ',k,ik         
          write(6,*)'Strongest lines for post-shock ',k, ik
 c         write(101,*)'Strongest lines for post-shock ',k, ik
@@ -3690,38 +3468,6 @@ c               endif
       return
       end
 
-      subroutine radsimp(i,taus,fls)
-c
-c simple extinction assuming plane geometry from a point with optical 
-c    depth taus and mean intensity fls
-c
-      implicit real*8(a-h,o-z)
-      include 'param'
-c      PARAMETER (NE1=-100,NE2=250,NE3=NE2+1)
-      COMMON/INT/FL(2,NE1:NE2),SI(14,27,NE1:NE2),E1(NE1:NE3),E(NE1:NE3)
-c      COMMON/IND/I
-      COMMON/FRE/NINQ,JMIN,JJ
-      COMMON/DIF/EM(MD,NE1:NE2),TAU(MD,NE1:NE2),TAUTOT(MD,NE1:NE2),
-     &     EMC(MD,NE1:NE2)
-      common/debug/ideb
-      dimension taus(ne1:ne2),fls(ne1:ne2)
-
-
-      do j=jmin,jj
-
-c optical depth from end point of last iteration to the current point
-
-         taudiff = tautot(i,j) - taus(j)
-
-         fl(2,j) = fls(j)*e2(taudiff)
-
-      enddo
-
-      return
-      end
-
-
-
 
       real*8 function coolf(i,k,ishock,iss,dt,te,dens,xe,
      &     photok,photolm)
@@ -3765,7 +3511,6 @@ c      PARAMETER (NE1=-100,NE2=250,NE3=NE2+1)
       dimension photok(14,26),photolm(14,26)
       dimension nionel(14)
       data nionel/1,2,6,7,8,10,11,12,13,14,16,18,20,26/
-
       ideb = 1
 
       den(ik) = dens
@@ -3815,11 +3560,9 @@ c only solve radiation transport in the post shock direction first time
       tq=1.e6
       call coion_fit(1,1,tq,cov)
       call rec_colli(i,te,dens,xe)
-
       call rate(te,xe,photok,photolm)
 
       call ctionrate(i,te,ction)
-
       denel=xe*dens
 
       denh = abn(1)*dens
@@ -3839,11 +3582,6 @@ c         stop
 
       endif
 
-      call elecdens(i,xe,zelec)
-
-      call ionization_h_he(i,dt,dent,denel,
-     &     photok,xe,zelec)
-      
       ze = xe -abn(1)*xion(i,1,2) - 
      &     abn(2)*(xion(i,2,2) + 2.*xion(i,2,3))
       zel=ze
@@ -3911,7 +3649,7 @@ c     xion(k,iel,j)=xion(2,iel,j)
  12   call enum_cf(i)
            
       del(ik)=xe
-      
+
       coolf = rad(te,xe,dens,dr(k),ifp)
 
       trad=3.*1.38e-16*te/(dens*xe*coolf)

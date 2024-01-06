@@ -44,10 +44,6 @@ c 14 0 12   Ar
 
 
       xe = 0.
-      do iel=1,14
-         iab = iabcf(iel)
-c!!!         abn(iel)=ab(iab)
-      enddo
 
       return
       end
@@ -264,6 +260,7 @@ C
       real*8 cpu_start, cpu_tsec
       common/cpu_t/cpu_start,cpu_tsec      
       save feifs_c,fecon
+      write(6,*)' te,xelec',te,xelec
       te_h_he=te
       do ii=1,nlp
          cin(ii)=0.
@@ -360,7 +357,7 @@ c     ge(iel,iz) = gea(iel,iz)/den
          xf(i)=xion(ik,14,i)         
       enddo
 
-      do iel=1,14
+      do iel=3,14
          do ion=1,27
             line_cool(iel,ion)=0.
          enddo
@@ -765,9 +762,9 @@ C
       Z=ABN(5)*XO(4)
       CALL RLOSS(5,4,2.588D5,2.33D0,2.D0,4.D0,5.20D-4,RS,XEL,Z,TE,cl(83)
      &     ,W(83),CIN(83),FRQQ,83,WLI(83))
-      tauline(83)=t0
-      ilabcf(83)=504
-      C143=cl(83)
+c      tauline(83)=t0
+c      ilabcf(83)=504
+c      C143=cl(83)
       cinx(5,4,3)=cin(83)
       taulinex(5,4,3)=t0
       wlix(5,4,3)=wli(83)
@@ -853,7 +850,7 @@ C
 C
 C     NEON
 C
-C     NE II 12.814 MY Pradhan
+C     NE II 12.814 MY Pradhan. Updated coll. str. Wang+ 2017
       Z=ABN(6)*XNE(2)
       OM=0.303*t4**0.065
       CALL RLOSS(6,2,12.814D4,OM,4.D0,2.D0,8.55D-3,RS,XEL,Z,TE,cl(46)
@@ -1036,8 +1033,8 @@ C
       OM=3.251*T4**0.112
       CALL RLOSS(9,2,1671.D0,OM,1.D0,3.D0,1.46D9,RS,XEL,Z,TE,cl(42)
      &     ,W(42),CIN(42),FR(2,42),42,WLI(42))
-      tauline(42)=t0
-      ilabcf(42)=902
+c      tauline(42)=t0
+c      ilabcf(42)=902
       C921=cl(42)
       cinx(9,2,1)=cin(42)
       taulinex(9,2,1)=t0
@@ -1050,8 +1047,8 @@ C
       om=3.251*t4**0.25
       CALL RLOSS(9,2,2670.D0,om,1.D0,9.D0,1.11d3,RS,XEL,Z,TE,cl(81)
      &     ,W(81),CIN(81),FR(2,81),81,WLI(81))
-      tauline(81)=t0
-      ilabcf(81)=902
+c      tauline(81)=t0
+c      ilabcf(81)=902
       C922=cl(81)
       cinx(9,2,2)=cin(81)
       taulinex(9,2,2)=t0
@@ -1060,14 +1057,14 @@ C
       line_cool(9,2)=cl(42) + cl(81)
 
 C
-C     AL III 1854.7 1862.8 OM and A Kingdon (Cloudy 90)
+C     AL III 1854.7 1862.8 OM and A Kingdon 
 C
       Z=ABN(9)*XAL(3)
       om=16.0*t4**0.1
       CALL RLOSS(9,3,1858.D0,om,2.D0,6.D0,5.55D8,RS,XEL,Z,TE,cl(96)
      &     ,W(96),CIN(96),FR(2,96),96,WLI(96))
-      tauline(96)=t0
-      ilabcf(96)=903
+c      tauline(96)=t0
+c      ilabcf(96)=903
       C931=cl(96)
       cinx(9,3,1)=cin(96)
       taulinex(9,3,1)=t0
@@ -1579,15 +1576,16 @@ C
       Z=ABN(6)*XNE(3)               
 
 c
-c  Coll. strengths from Butler & Zeippen 1994, A:s from Pradhan comp.
+c     Coll. strengths from Butler & Zeippen 1994, A:s from Pradhan comp.
+c    updated 230601 Mao et al 2021,McLaughlin+ 2011      
 c
       call FIVELEV_dp(74,6,3,5,
      &0.0d0,642.9d0,920.4d0,25840.8d0,55750.6d0,
      &5.d0,3.d0,1.d0,1.d0,1.d0,
-     &5.97d-3,2.18d-8,1.71d-1,3.94d-3,1.15d-3,5.42d-2,
-     &2.00d0,8.51d-6,0.0d0,0.271d0,
-     &0.774d0,0.208d0,0.754d0,0.084d0,0.244d0,0.452d0,
-     &0.050d0,0.151d0,0.017d0,0.269d0,
+     &     5.97d-3,2.18d-8,1.71d-1,3.94d-3,1.15d-3,5.42d-2,
+     &     2.06d0,8.51d-6,0.0d0,0.271d0,
+     &     0.60d0,0.170d0,0.55d0,0.084d0,0.167d0,0.32d0,
+     &     0.050d0,0.151d0,0.017d0,0.55d0,
      &     TE,Z,XI)
 
       DO I=1,5
@@ -4240,7 +4238,7 @@ C     OTS
 c calculate the highest heating rate
       
       dhmax=0.
-      do iel=1,14
+      do iel=3,14
          do iz=1,nionel(iel)
 
             if(dheat(iel,iz).gt.dhmax) then
@@ -4368,9 +4366,11 @@ c Fe I NOT included! cin18 includes Axelrod's estimate
       coolx(14,18)=cofe18
 
       coolt=0.
-      do iel=1,14
+      do iel=3,14
          do ion=1,27
             coolt=coolt+line_cool(iel,ion)
+c            write(6,9267)iel,ion,line_cool(iel,ion),coolt
+ 9267       format('line cooling ',2i5,1pe12.3,10e12.3)
          enddo
       enddo
 
@@ -4418,35 +4418,35 @@ C     APPROX. REC. EMISSION FROM C, O, S, SI, FE
 
       ioterm=1
 
-      write(6,*)' '
-      write(6,9312)te,del(ik),heat,del(ik)*cool,ra
- 9312 format('Heating: T_e ',1pe11.3,' X_e ',e11.3,' Heat ',e11.3,' X_e * cool',e11.3,' rad ',e11.3)
-      write(6,*)' '
-      write(6,9311)ff,cohi,cohei,cheii,cocar,conit,coox,coone,conat,comag,
-     &     cosil,coosu,coar,cocal,coofe,cool
-      write(6,*)'Fractional cooling '
-      write(6,9311)ff/cool,cohi/cool,cohei/cool,cheii/cool,cocar/cool,
-     &     conit/cool,coox/cool,coone/cool,conat/cool,comag/cool,
-     &     cosil/cool,coosu/cool,coar/cool,cocal/cool,coofe/cool,cool
- 9311 format('F-F ',1Pe11.3,' H I',e11.3,' He I',e11.3,' He II',e11.3,' C',e11.3,
-     &     ' N',e11.3,' O',e11.3,' Ne',e11.3,' Na',e11.3,' Mg',e11.3,
-     &' Si',e11.3,' S',e11.3,' Ar',e11.3,' Ca',e11.3,' Fe',e11.3,' Total',e11.3)
-      write(6,*)' '
-      write(6,*)'Photo heating '
-      write(6,9313)phi,phei,pheii,pcar,pni,poxy,pne,pna,pmg,psi,psu,par,pca,pfe,heat
-
-      if(kradius>=3) then         
-         write(6,*)'Fractional heating '
-         write(6,9313)phi/heat,phei/heat,pheii/heat,pcar/heat,pni/heat,
-     &        poxy/heat,pne/heat,pna/heat,pmg/heat,psi/heat,psu/heat,
-     &        par/heat,pca/heat,pfe/heat,heat/heat      
-         write(6,*)' '
-      endif
- 9313 format(' H I',1pe11.3,' He I',e11.3,' He II',e11.3,' C',e11.3,
-     &     ' N',e11.3,' O',e11.3,' Ne',e11.3,' Na',e11.3,' Mg',e11.3,
-     &     ' Si',e11.3,' S',e11.3,' Ar',e11.3,' Ca',e11.3,
-     &     ' Fe',e11.3,' Total',e11.3)
-      write(6,*)' '
+c$$$      write(6,*)' '
+c$$$      write(6,9312)te,del(ik),heat,del(ik)*cool,ra
+c$$$ 9312 format('Heating: T_e ',1pe11.3,' X_e ',e11.3,' Heat ',e11.3,' X_e * cool',e11.3,' rad ',e11.3)
+c$$$      write(6,*)' '
+c$$$      write(6,9311)ff,cohi,cohei,cheii,cocar,conit,coox,coone,conat,comag,
+c$$$     &     cosil,coosu,coar,cocal,coofe,cool
+c$$$      write(6,*)'Fractional cooling '
+c$$$      write(6,9311)ff/cool,cohi/cool,cohei/cool,cheii/cool,cocar/cool,
+c$$$     &     conit/cool,coox/cool,coone/cool,conat/cool,comag/cool,
+c$$$     &     cosil/cool,coosu/cool,coar/cool,cocal/cool,coofe/cool,cool
+c$$$ 9311 format('F-F ',1Pe11.3,' H I',e11.3,' He I',e11.3,' He II',e11.3,' C',e11.3,
+c$$$     &     ' N',e11.3,' O',e11.3,' Ne',e11.3,' Na',e11.3,' Mg',e11.3,
+c$$$     &' Si',e11.3,' S',e11.3,' Ar',e11.3,' Ca',e11.3,' Fe',e11.3,' Total',e11.3)
+c$$$      write(6,*)' '
+c$$$      write(6,*)'Photo heating '
+c$$$      write(6,9313)phi,phei,pheii,pcar,pni,poxy,pne,pna,pmg,psi,psu,par,pca,pfe,heat
+c$$$
+c$$$      if(kradius>=3) then         
+c$$$         write(6,*)'Fractional heating '
+c$$$         write(6,9313)phi/heat,phei/heat,pheii/heat,pcar/heat,pni/heat,
+c$$$     &        poxy/heat,pne/heat,pna/heat,pmg/heat,psi/heat,psu/heat,
+c$$$     &        par/heat,pca/heat,pfe/heat,heat/heat      
+c$$$         write(6,*)' '
+c$$$      endif
+c$$$ 9313 format(' H I',1pe11.3,' He I',e11.3,' He II',e11.3,' C',e11.3,
+c$$$     &     ' N',e11.3,' O',e11.3,' Ne',e11.3,' Na',e11.3,' Mg',e11.3,
+c$$$     &     ' Si',e11.3,' S',e11.3,' Ar',e11.3,' Ca',e11.3,
+c$$$     &     ' Fe',e11.3,' Total',e11.3)
+c$$$      write(6,*)' '
 
       XELEC=DEL(IK)
 

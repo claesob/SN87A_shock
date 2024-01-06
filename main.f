@@ -1,4 +1,65 @@
+***********************************************************************
+C                                                                      *
+C     THIS PROGRAM CALCULATES THE STRUCTURE OF AN EXPANDING SUPERNOVA  *
+C     IONIZED BY THE NON-THERMAL ELECTRONS DUE TO THE DECAY OF COBOLT  *
+C                                                                      *
+C                                                                      *
+C     THE STRUCTURE IS READ FROM SUBROUTINE STRUC, AND IS A FUNCTION   *
+C     OF THE MASS FROM THE INNER BOUNDARY.                             *
+C     IF INOUT = 1 START AT CENTER, IF 0 START AT OUTER BOUNDARY       *
+C                                                                      *
+C     CENTERING OF VARIABLES                                           *
+C                                                                      *
+C     I     1         2         3         4                            *
+C           +         +         +         +                            *
+C          R(1)      R(2)      R(3)      R(4)                          *
+C         RM(1)     RM(2)     RM(3)     RM(4)                          *
+C           M         M         M         M                            *
+C                +         +          +                                *
+C              DR(2)     DR(3)      DR(4)                              *
+C              DM        DM         DM                                 *
+C              DE(2)     DE(3)      DE(4)                              *
+C              TE(2)     TE(3)      TE(4)                              *
+C                                                                      *
+C                                                                      *
+C     BINNING IN ENERGY                                                *
+C                                                                      *
+C      +        13.598          +                                      *
+C     E(1)        E(2)        E(3)                                     *
+C            +           +                                             *
+C           E1(1)       E1(2)                                          *
+C           SI(1)       SI(2)                                          *
+C          TAU(1)      TAU(2)                                          *
+C           FL(1)       FL(2)                                          *
+C                                                                      *
+C       CHANGE BETWEEN DOUBLE AND SINGLE PRECISION:                    *
+C                                                                      *
+C       CHANGE DBLE() TO REAL()                                        *
+C       IMPLICIT REAL*8 STATEMENTS IN ALL ROUTINES                     *
+C       FUNCTION                                                       *
+C       REAL*4 FOR INPUT VARIABLES IN ROUTINES:                        *
+C           RLOSS                                                      *
+C           DIEL                                                       *
+C           DIELB                                                      *
+C           SEAT                                                       *
+C           SHELL                                                      *
+C           CR                                                         *
+C           CRB                                                        *
+C                                                                      *
+C     CIRCUMSTELLAR:
+c     EJECTS 
 
+C     SET ICS = 1
+C         INOUT = 0
+c         IREV=0
+c     uses radtranoisph
+c
+C     SPECIFY RSHOCK, MTOT
+C     FOR REVERSE SHOCK 
+C     ICS = 1
+C     INOUT=1
+C     IREV=1
+C     
 C***********************************************************************
 C**********
       IMPLICIT REAL*8(A-H,O-Z)
@@ -82,10 +143,11 @@ C
 C
 C	OPEN FILES
 C
+c      OPEN(11,FILE='cordat.dat')
       open(27,file='./ATDAT/feIV_22.dat',status='old')
       open(28,file='./ATDAT/feIII_30.dat',status='old')
 C     INPUT PARAMETERS IN THIS FILE
-      OPEN(99,FILE='shock_input.txt',access='sequential',form='formatted')
+      OPEN(99,FILE='pulin3_pulsar',access='sequential',form='formatted')
       READ(99,9899)TEXT1
       READ(99,9899)TEXT2
       READ(99,9899)TEXT4
@@ -100,94 +162,18 @@ C     INPUT PARAMETERS IN THIS FILE
       MODNRSTR(1:1)=CHAR(MN1+48)
       MODNRSTR(2:2)=CHAR(MN2+48)
       MODNRSTR(3:3)=CHAR(MN3+48)
-
-c      file81(1:8)='fort_81_'
-c      file81(9:11)=modnrstr(1:3)
-c      open(81,file=file81)
-c      file56(1:8)='fort_56_'
-c      file56(9:11)=modnrstr(1:3)
-c      open(56,file=file56)
       file101(1:13)='strong_lines_'
       file101(14:16)=modnrstr(1:3)
       file101(17:20)='.txt'
       open(101,file=file101)
-c      file59(1:8)='fort_59_'
-c      file59(1:8)='spectrum'      
-c      file59(9:11)=modnrstr(1:3)
-c      open(59,file=file59)
       FILE63(1:5)='struc'
       FILE63(6:8)=MODNRSTR(1:3)
       OPEN(63,FILE=FILE63)
-   
-c      file75(1:8)='fort_75_'
-c      file75(9:11)=modnrstr(1:3)
-c      open(75,file=file75)
-c      file77(1:8)='fort_77_'
-c      file77(9:11)=modnrstr(1:3)
-c      open(77,file=file77)
-c      open(77,file='fort_77_390')
-c      file62(1:8)='line_em_'
-c      file62(9:11)=modnrstr(1:3)
-c      open(62,file=file62)
-c      file67(1:8)='fort_67_'
-c      file67(9:11)=modnrstr(1:3)
-c      open(67,file=file67)
-c      open(67,file='fort_67_390')
-c      file68(1:8)='fort_68_'
-c      file68(9:11)=modnrstr(1:3)
-c      open(68,file=file68)
-c      open(68,file='fort_68_390')
-c      file69(1:8)='fort_69_'
-c      file69(9:11)=modnrstr(1:3)
-c      open(69,file=file69)
-c      open(69,file='fort_69_390')
-c      file57(1:8)='fort_57_'
-c      file57(9:11)=modnrstr(1:3)
-c      open(57,file=file57)
-c      open(57,file='fort_57_390')
-c      file78(1:8)='fort_78_'
-c      file78(9:11)=modnrstr(1:3)
-c      open(78,file=file78)
-c      file96(1:8)='fort_96_'
-c      file96(9:11)=modnrstr(1:3)
-c      open(96,file=file96)
-
-
-c      FILE5(1:6)='slltot'
-c      FILE5(7:9)=MODNRSTR(1:3)
-c      OPEN(33,FILE=FILE5)
-c      FILE6(1:6)='sltab.'
-c      FILE6(7:9)=MODNRSTR(1:3)
-c      OPEN(37,FILE=FILE6)
 9899  FORMAT(A)
-C     SAVE FLUXES ETC. IN THIS
-c      OPEN(14,FILE='slutin2',FORM='UNFORMATTED')
 C     FILE1= GENERAL OUTPUT FILE = UNIT 6
       FILE1(1:3)='slt'
       FILE1(4:6)=MODNRSTR(1:3)
-C     FILE2= LINE PROFILES = UNIT 16
-c      FILE2(1:3)='sll'
-c      FILE2(4:6)=MODNRSTR(1:3)
-C     FILE3= EMISSION RATES IN THIS FILE = UNIT 17
-c      FILE3(1:4)='slem'
-c      FILE3(5:7)=MODNRSTR(1:3)
-C     FILE4= FINAL MODEL = UNIT 15
-c      FILE4(1:3)='slf'
-c      FILE4(4:6)=MODNRSTR(1:3)
       OPEN(6,FILE=FILE1)
-c      OPEN(15,FILE=FILE4)
-c      OPEN(16,FILE=FILE2)
-c      OPEN(17,FILE=FILE3)
-c      OPEN(22,FILE='slasktx2')
-c      OPEN(21,FILE='slrecem2')
-c      OPEN(18,FILE='slabund2')
-c      OPEN(31,FILE='sleddflux')
-c$$$      WRITE(6,9899)TEXT1
-c$$$      WRITE(6,9899)TEXT2
-c$$$      WRITE(6,9899)TEXT4      
-c$$$      WRITE(6,9899)TEXT3
-c$$$      WRITE(6,9899)TEXT5      
-c$$$      WRITE(6,*)MODNR
       JMIN=-249
 c      jmin=-499
 c      jmin=-699
@@ -398,6 +384,7 @@ C           SPECIFY CHEMICAL COMPOSITION
           ELSEIF(LABEL(1:5).EQ.'INP19') THEN
 C           SPECIFY CHEMICAL COMPOSITION
             INPUTCOMP=1
+
 c     ring 87A
             open(19,file='./EXTRAS/shockspec_ring.dat',status='old')
             READ(19,*)(ABIN(L),L=1,12)      
@@ -438,8 +425,6 @@ C       CONSTANT PRESSURE IPRESS = 1
         IF(LABEL(1:3).EQ.'PRE') IPRESS=1
 C       CONSTANT DENSITY IDEN = 1
         IF(LABEL(1:3).EQ.'DEN') IDEN=1
-C       AGN SPECTRUM 
-        IF(LABEL(1:3).EQ.'AGN') IAGN=1
 C       PULSAR 
         IF(LABEL(1:4).EQ.'PUL ') THEN
 C         SPECTRUM PARAMETERS FOR PULSAR AND FREE FREE SPECTRA
@@ -487,7 +472,8 @@ C       IF IUVBLANK = 1 NO UV-CONTINUUM BELOW 3000 A
         IF(LABEL(1:4).EQ.'STOP') GOTO 33
       ENDDO
 33    CONTINUE
-
+C     READ MODEL FROM THIS FILE
+      write(*,*)' inmod',inmod
       IPAR=1
       ISPH=1
       IF(ISTAT.EQ.0.AND.ISOBOL.EQ.0) WRITE(0,*)' Sobolev or static?'
@@ -528,7 +514,6 @@ C       IF IUVBLANK = 1 NO UV-CONTINUUM BELOW 3000 A
       CALL PRINTMODEL (' FILLING    = ',FILLING)
       IF(IPRESS.EQ.1)  WRITE(6,*)' Constant pressure'
       IF(IDEN.EQ.1)  WRITE(6,*)' Constant density'
-      IF(IAGN.EQ.1) WRITE(6,*)' AGN-spectrum'
       IF(ICS.EQ.1) WRITE(6,*)' Circumstellar interaction'
       IF(IREV.EQ.1) WRITE(6,*)' Reverse shock'
       IF(ILOWION.EQ.1) WRITE(6,*)' Only low ionization ions'
@@ -594,18 +579,6 @@ C     RADIUS OF THE OUTER BOUNDARY IN CM
       IF(RIN.LT.R1) RIN=R1+1.E-5
 C
       ejdens=0.
-      IF(ICS.EQ.1.AND.IPULSSP.NE.1.and.ifreefree.eq.0) THEN
-        read(19,*)mtot
-c       temperature of reverse and c-s shocks
-        read(19,*)terev,tecs
-        read(19,*)revmass
-        read(19,*)EJDENS
-        write(6,*)' Trev = ',terev
-        write(6,*)' Rev. mass: ',revmass
-        write(6,*)' Ej. dens. ',ejdens
-      ENDIF   
-      IF(IAGN.EQ.1) MTOT=1.D66
-      IF(IAGN.EQ.1) REVMASS=1.D66
       MSUN=MTOT/SOLMA
       RMASS=MTOT/SOLMA
 C     DELM = INITIAL MASS INTERVAL

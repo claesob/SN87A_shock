@@ -10,6 +10,9 @@ c initiates and reads data for the Badnell et al fits
 c for initial reading iel & ion arbitrary!      
       iel=12
       ion=6
+c first badnells table of fits      
+      call diel_fits_badnell(0,iel,ion,te,diel)
+c now specific more accurate fits for Si-Ca      
       call diel_fits_badnell(11,iel,ion,te,diel)
       call diel_fits_badnell(12,iel,ion,te,diel)
       call diel_fits_badnell(13,iel,ion,te,diel)
@@ -33,6 +36,44 @@ c for initial reading iel & ion arbitrary!
       integer iel,ion
       common/rr_diel_badn/dielbadn(30,30),alrecbadn(30,30)
      &     ,altotbadn(30,30)
+c     O II --> O I
+      call diel_fits_badnell(7,8,2,te,drec)
+      dielbadn(8,2)=drec
+      call diel_fits_badnell(6,8,3,te,drec)
+      dielbadn(8,3)=drec
+      call diel_fits_badnell(5,8,4,te,drec)
+      dielbadn(8,4)=drec
+      call diel_fits_badnell(4,8,5,te,drec)
+      dielbadn(8,5)=drec
+      call diel_fits_badnell(3,8,6,te,drec)
+      dielbadn(8,6)=drec
+      call diel_fits_badnell(2,8,7,te,drec)
+      dielbadn(8,7)=drec
+      call diel_fits_badnell(1,8,8,te,drec)
+      dielbadn(8,8)=drec
+      call diel_fits_badnell(0,8,9,te,drec)
+      dielbadn(8,9)=drec            
+c Ne II --> Ne I
+      call diel_fits_badnell(9,10,2,te,drec)
+      dielbadn(10,2)=drec
+      call diel_fits_badnell(8,10,3,te,drec)
+      dielbadn(10,3)=drec
+      call diel_fits_badnell(7,10,4,te,drec)
+      dielbadn(10,4)=drec
+      call diel_fits_badnell(6,10,5,te,drec)
+      dielbadn(10,5)=drec
+      call diel_fits_badnell(5,10,6,te,drec)
+      dielbadn(10,6)=drec
+      call diel_fits_badnell(4,10,7,te,drec)
+      dielbadn(10,7)=drec
+      call diel_fits_badnell(3,10,8,te,drec)
+      dielbadn(10,8)=drec
+      call diel_fits_badnell(2,10,9,te,drec)
+      dielbadn(10,9)=drec
+      call diel_fits_badnell(1,10,10,te,drec)
+      dielbadn(10,10)=drec
+      call diel_fits_badnell(0,10,11,te,drec)
+      dielbadn(10,11)=drec               
 c S II -> S I
       call diel_fits_badnell(15,16,2,te,drec)
       dielbadn(16,2)=drec
@@ -87,15 +128,30 @@ c Ar VIII -> Ar VII
 Ca X -> Ca IX
       call diel_fits_badnell(11,20,10,te,drec)
       dielbadn(20,10)=drec
-      do   iel=14,20,2
-         do ion=2,iel+1
-            call rr_fits_badnell(iel,ion,te,rrec)
-            if(rrec > 0.) then
+
+      do iel=6,20,1
+         if(iel<=8.or.(iel>=10.and.iel<=14).or.iel==16.or.iel==18
+     &        .or.iel==20.or.iel==26) then
+            do ion=2,iel+1
+               call rr_fits_badnell(iel,ion,te,rrec)
                alrecbadn(iel,ion)=rrec
                altotbadn(iel,ion)=alrecbadn(iel,ion)+dielbadn(iel,ion)
-            endif
-         enddo
+c               write(6,911)iel,ion,te,alrecbadn(iel,ion),
+c     &                 dielbadn(iel,ion),altotbadn(iel,ion)
+ 911           format('alrec,dielbad,totbad',2i5,1pe12.3,10e12.3)
+            enddo
+         endif
       enddo
+      
+c$$$      do   iel=14,20,2
+c$$$         do ion=2,iel+1
+c$$$            call rr_fits_badnell(iel,ion,te,rrec)
+c$$$            if(rrec > 0.) then
+c$$$               alrecbadn(iel,ion)=rrec
+c$$$               altotbadn(iel,ion)=alrecbadn(iel,ion)+dielbadn(iel,ion)
+c$$$            endif
+c$$$         enddo
+c$$$      enddo
       return
       end
       
@@ -106,7 +162,38 @@ Ca X -> Ca IX
       integer i,k,iel,ion,iso,initdiel,initrr,nel,kmax(30),npar(30,30)
       common/init_diel/initdiel,initrr
       save kmax,c,e,npar
+      real*8 cc(9),ee(9)
+      integer nzero,ieli,ioni,m,w,ninitial
       if(initdiel==1) then
+         if(iso==0) then
+            do ieli=1,30
+               do ioni=1,ieli
+                  do k=1,8
+                     c(ieli,ioni,k)=0.
+                     e(ieli,ioni,k)=0.
+                  enddo
+               enddo
+            enddo
+c     Note that Badnell orders the recombinations by the number of electrons
+c     in the initial target ion. Starts with He-like, ie ninitial=1.           
+            open(11,file='./ATDAT/diel_fits_badnell_table.txt',status='old')
+            do i=1,130
+               read(11,*)nzero,ieli,ninitial,m,w,(cc(k),k=1,9)
+               ioni=ieli-ninitial
+               npar(ieli,ioni)=9-nzero
+               do k=1,npar(ieli,ioni)
+                  c(ieli,ioni,k)=cc(k)
+               enddo
+            enddo
+c     read E
+            do i=1,130
+               read(11,*,err=22)nzero,ieli,ninitial,m,w,(ee(k),k=1,9)
+               ioni=ieli-ninitial
+               do k=1,npar(ieli,ioni)
+                  e(ieli,ioni,k)=ee(k)
+               enddo
+            enddo            
+         endif         
          if(iso==11) then
             open(11,file='./ATDAT/diel_na_like_althun2006.txt',status='old')
             kmax(iso)=7
@@ -129,20 +216,22 @@ c            open(12,file='rr_al_like_abdel_naby2012.txt',status='old')
             kmax(iso)=7
             nel=13
          endif
-         read(11,*)dum
-         do i=1,nel
-            iel=iso+i
-            ion=iel-iso+1
-            npar(iel,ion)=kmax(iso)
-            read(11,*,end=99)ionel,(c(iel,ion,k),k=1,kmax(iso))
-         enddo
-         read(11,*)dum
-         do i=1,nel
-            iel=iso+i
-            ion=iel-iso+1
-            read(11,*,end=99)ionel,(e(iel,ion,k),k=1,kmax(iso))
-         enddo
- 99      continue
+         if(iso.ne.0) then
+            read(11,*)dum
+            do i=1,nel
+               iel=iso+i
+               ion=iel-iso+1
+               npar(iel,ion)=kmax(iso)
+               read(11,*,end=99)ionel,(c(iel,ion,k),k=1,kmax(iso))
+            enddo
+            read(11,*)dum
+            do i=1,nel
+               iel=iso+i
+               ion=iel-iso+1
+               read(11,*,end=99)ionel,(e(iel,ion,k),k=1,kmax(iso))
+            enddo
+ 99         continue
+         endif
       else
          drec=0.
          do k=1,npar(iel,ion)
@@ -151,6 +240,8 @@ c            open(12,file='rr_al_like_abdel_naby2012.txt',status='old')
          drec=drec/te**1.5
       endif
       return
+ 22   write(0,*)'stop in diel '      
+      stop      
       end
       
       subroutine rr_fits_badnell(iel,ion,te,rrec)

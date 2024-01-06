@@ -131,177 +131,6 @@ C     FOR TOTAL HEATING RATE (including ionization energy)
       RETURN
       END
 
-      SUBROUTINE HORATE_old(ionel,R,TE)
-c no split of 2s and 2p or H      
-      IMPLICIT REAL*8(A-H,O-Z)
-c      PARAMETER (MD=350,MDP1=MD+1)
-      include 'param'
-      PARAMETER (NL=340,NLP1=NL+1)
-c      PARAMETER (NE1=-100,NE2=250,NE3=NE2+1)
-C
-C     CALCULATE RECOMBINATION AND PHTOOIONIZATION RATES 
-C
-      COMMON/IND/I
-      COMMON/A14/C(NL,NL),CI(NL),G(NL),EN(NL),A(NL,NL),
-     &WL(NL,NL),DCDT(NL,NL),DCIDT(NL)
-      COMMON/A17/RECNET(NL),RECNDT(NL),RECCO(NL),RTE(NL),
-     &PH(NL),DRDT(NL),RECT(6,NL),PHET(NL)
-      COMMON/NLEV/e00,NION,N,NP1H,NHMAX,NHMIN
-      COMMON/PHEAT/PHE(NL)
-      COMMON/PHOTOHEAT/PHEAT(10,NL),PHEATT(10,NL)
-      COMMON/A26/SIGO(20,NE1:NE2),SIGCA(10,NE1:NE2),SIGHE(16,NE1:NE2),
-     &SIGFE(NL,NE1:NE2),sigfei(nl,ne1:ne2),SIGH(50,NE1:NE2),SIGHE2(50,NE1:NE2)
-      COMMON/FRE/NINT,JMIN,JJ
-      COMMON/INT/FL(2,NE1:NE2),SI(14,27,NE1:NE2),E1(NE1:NE3),E(NE1:NE3)
-      COMMON/DTAU/FLU(NE1:NE2)
-      COMMON/DIF/EM(MD,NE1:NE2),TAU(MD,NE1:NE2),TAUTOT(MD,NE1:NE2),
-     &           EMC(MD,NE1:NE2)
-      COMMON/HEIION/ZHEICO,ZHEILA,ZOTSHI,ZBALM,ZHBALM
-      COMMON/RECAL/RECO(NL)
-      common/hydphot/phhi(nl)
-      common/ctionfe/phfe(2)
-      common/fill/filling
-      parameter(nlp=30000)
-      common/linepoint/nlines,jline(nlp),iion(nlp)
-      common/lineopac/totopl(nlp)
-      common/linephoto/phline(nlp) 
-      common/timecheck/time,itime
-      common/preion/ipre
-      DATA PI/3.1415926E0/,ELCH/1.60219E-12/,AMU/1.660531E-24/
-      TS=TE
-c      write(6,*)' horate ',itime,ion,n
-
-      do j=1,n
-         ph(j)=0.
-      enddo
-
-      if(ionel==5) then
-         nj=15
-      else
-         nj=n
-      endif
- 
-      DO 500 J=1,Nj
-C
-C     FIRST CALCULATE THE RECOMBINATION RATE FOR ALL LEVELS
-C
-         CALL RECOMB(IONel,J,TS,AL,RI)
-         RECO(J)=AL
-C
-C     THEN THE IONIZATION AND HEATING RATE
-C     
-         E0=E00-EN(J)
-         ZA=0.
-         HEAT=0.
-         HEATT=0.
-         phtot=0.
-c         write(6,*)e0,en(j)
-         DO J1=JMIN,JJ
-            IF(E1(J1).GT.E0) then
-               if(ionel==5) then
-                  SIGM=SIGH(J,J1)
-               elseif(ionel==4) then
-                  SIGM=SIGFE(J,J1)
-               elseif(ionel==6) then
-                  SIGM=SIGFEI(J,J1)
-               elseif(ionel==3) then
-                  SIGM=SIGHE(J,J1)
-               elseif(ionel==2) then
-                  SIGM=SIGO(J,J1)
-               endif
-
-
-
-               if(sigm.gt.0.) then
-                  ZC=4.*PI*FL(2,J1)*SIGM*(E(J1+1)-E(J1))/(ELCH*E1(J1))
-               
-c     IF(ION.EQ.5.and.j1.eq.2) THEN
-C     !    OTS - APPROX. FOR THE LYMAN CONTINUUM
-c!!   zc=EXP(-TAUTOT(I-1,2))*zc
-c     ENDIF
-                  ZA=ZA+ZC
-                  HEAT=ELCH*ZC*(E1(J1)-E0)+HEAT
-                  dHEAT=ELCH*ZC*(E1(J1)-E0)
-                  HEATT=ELCH*ZC*E1(J1)+HEATT
-                  if(itime.ge.-3300.and.ionel.eq.5.and.sigm.gt.0.) 
-     &                 then
-c     write(6,9327)j1,e1(j1),fl(2,j1),sigm,zc,za,dheat,heat
- 9327                format('pheat ',i5,1pe12.3,10e12.3)
-                  endif
-               endif
-            endif            
-         enddo
-         PHEAT(IONel,J)=HEAT
-
-         PHEATT(IONel,J)=HEATT
-         PH(J)=ZA
-         
-         if(itime.ge.-33300.and.ionel.eq.5) 
-     &        then
-c            write(6,9427)j,ph(j)
- 9427       format('phj ',i5,1pe12.3,10e12.3)
-         endif
-c     include photoionization due to continous absorption of line
-c     photons from rlossd
-c     
-         if(ionel.eq.5.and.j.eq.1) then
-c     ground state
-            k=1
-         elseif(ionel.eq.5.and.j.ge.2) then
-c     n=2 and higher continua k=101 = Balmer etc
-            k=99+j   
-         elseif(ionel.eq.2.and.j.eq.1) then
-            k=14
-         elseif(ionel.eq.3.and.j.eq.1) then
-            k=2
-         elseif(ionel.eq.4.and.j.eq.1) then
-            k=43
-         elseif(ionel.eq.6.and.j.eq.1) then
-            k=42
-         else
-            goto 333
-         endif
-         do l=1,nlines
-            dphl=0.
-            dphhl=0.
-            if(jline(l).gt.jmin) then
-               IF(IONel.EQ.5)  then
-                  SIGM=SIGH(j,jline(l))
-               elseIF(IONel.EQ.4)  then
-                  SIGM=SIGFE(J,jline(l))
-               elseIF(IONel.EQ.6)  then
-                  SIGM=SIGFEI(J,jline(l))
-               elseIF(IONel.EQ.3)  then
-                  SIGM=SIGHE(J,jline(l))
-               elseIF(IONel.EQ.2)  then
-                  SIGM=SIGO(J,jline(l))
-               endif
-               dphl=phline(l)*sigm
-               dphhl=dphl*elch*(e1(jline(l))-e0)
-               if(ionel.eq.5) then
-c                  write(6,*)' dphl ',l,jline(l),sigm,phline(l),dphl
-               endif
-            endif
-            ph(j)=ph(j)+dphl
-            pheat(ionel,j)=pheat(ionel,j)+dphhl
-
-         enddo
-
- 333     continue
-         if(ionel.eq.5) then
-            phhi(j)=ph(j)
-         endif
-c     Include charge transfer ionization of Fe I and Fe II for first 5 
-c     gs levels
-         if(ionel.eq.6.and.j.le.5) ph(j)=phfe(1)
-         if(ionel.eq.4.and.j.le.5) ph(j)=phfe(2)
-         RTE(J)=RI
- 500  CONTINUE
-      IF(IONel.EQ.5) ZBALM=PH(2)
-
-      RETURN
-      END
-
       SUBROUTINE HORATE(ionel,R,TE)
 c split of 2s and 2p for H      
       IMPLICIT REAL*8(A-H,O-Z)
@@ -369,13 +198,10 @@ C
          DO J1=JMIN,JJ
             IF(E1(J1).GT.E0) then
                if(ionel==5) then
-                  SIGM=SIGH(J,J1)
                elseif(ionel==4) then
                   SIGM=SIGFE(J,J1)
                elseif(ionel==6) then
                   SIGM=SIGFEI(J,J1)
-               elseif(ionel==3) then
-                  SIGM=SIGHE(J,J1)
                elseif(ionel==2) then
                   SIGM=SIGO(J,J1)
                endif
@@ -422,8 +248,6 @@ c     n=2 and higher continua k=101 = Balmer etc
                   SIGM=SIGFE(J,jline(l))
                elseIF(IONel.EQ.6)  then
                   SIGM=SIGFEI(J,jline(l))
-               elseIF(IONel.EQ.3)  then
-                  SIGM=SIGHE(J,jline(l))
                elseIF(IONel.EQ.2)  then
                   SIGM=SIGO(J,jline(l))
                endif
@@ -449,138 +273,6 @@ c     gs levels
       END
 
       
-      SUBROUTINE HLOSS(ION,B,R,TE,XEL,XI,HC)
-      IMPLICIT REAL*8(A-H,O-Z)
-      PARAMETER (NL=340,NLP1=NL+1)
-      PARAMETER (NFEL=3000)
-C     **************************************************************
-C     *****
-C     THIS ROUTINE CALCULATES THE ENERGY LOSS DUE TO H-EMISSION
-C     IN ERGS*CM**3 FOR BOUND-BOUND TRANSITIONS (SEE KWAN&KROLIK)
-C     AND THE OBSERVED STRENTH OF THE LINE (SEE KLEIN AND CASTOR ).
-c     EM12 = AB * N1(cm-3) * E12 * C12 * X(EL) =erg/cm3
-c     IN LOW DENSITY LIMIT 
-C     *****
-C     **************************************************************
-      COMMON/QSOM/qso,IAGN,ISTAT,ISOBOL
-      COMMON/SPH/ISPH
-      COMMON/NBA/NBACK
-      COMMON/CICS/RSHOCK,ics,ics87a
-      COMMON/A19/EM(NL,NL),ESC(NL,NL),TTOT(NL,NL),TOP(NL,NL)
-      common/pdestr/pdest(nl,nl),pdestr(nl,nl)
-      COMMON/A14/C(NL,NL),CI(NL),G(NL),E(NL),A(NL,NL),
-     &WL(NL,NL),DCDT(NL,NL),DCIDT(NL)
-      COMMON/A5/TAU,ALFA,EN,TSN,XL40,TXEV,R15
-      COMMON/NLEV/e00,NION,N,NP1H,NMA,NMI
-      common/abl/abn(15)
-      parameter(nlp=30000)
-      COMMON/EQUIH/FRH(2,401),WEQ(401),SR(NFEL+nlp),WOBS(NL,NL)
-      common/linephoto/phline(nlp) 
-      common/escapemax/be00
-      common/preion/ipre
-      DIMENSION B(NL)
-      DATA CSAHA/2.0708E-16/
-      DATA PI/3.1415926E0/,ELCH/1.60219E-12/,AMU/1.660531E-24/
-C
-C     ABXI = AB * FRACTION OF TOTAL IN THE LOWER AND UPPER STAGES
-C            = 1 AND NP1
-C     FOR NEUTRAL: X(I)+X(II)
-C     FOR IONS:    X(II)+X(III)
-
-      IF(ION.EQ.1) ABXI=ABn(13)*XI
-      IF(ION.EQ.2) ABXI=ABn(5)*XI
-      IF(ION.EQ.3) ABXI=ABn(2)*XI
-      IF(ION.EQ.4) ABXI=ABn(14)*XI
-c?? ab(8)?
-      IF(ION.EQ.6) ABXI=ABn(14)*XI  
-      IF(ION.EQ.5) ABXI=ABn(1)
-      TSEV=TSN/1.1609E4
-      TEV=TE/1.1609E4
-C
-C     C1= E * SAHA FACTOR
-C
-      DEN=DE(R)
-      NP1=N+1
-      C1=CSAHA*ELCH*XEL*ABXI*B(NP1)*DEN/TE**1.5
-      HC=0.
-      K=0
-      DO 100 I=2,N
-      IM1=I-1
-      DO 100 J=1,IM1
-      EIJ=E(I)-E(J)
-      IF(EIJ.LE.0.) THEN
-         EIJ=1.E-10
-         FIN=0.
-      ELSE
-         IF(NBACK.EQ.1) THEN
-            FIN=FMEAN(3,EIJ)
-         ELSE
-            FIN=0.
-         ENDIF
-      ENDIF
-      if(ics.eq.1) fin=0.
-      IF(QSO.GT.0.) GOTO 6395
-      EIJX=EIJ/TSEV
-C
-C     DILUTION FACTOR
-C
- 6395 CONTINUE
-C
-C     COLLISIONAL EXCITATION RATE FROM LEVEL J TO I
-C
-      pd=pdest(i,j)
-      FA=G(I)*A(I,J)*EIJ*ESC(I,J)*(1.-pd)*EXP((E00-E(I))/TEV)
-      FQ=B(I)-FIN*(B(J)*EXP((E(I)-E(J))/TEV)-B(I))
-      FB=EIJ*G(J)*C(J,I)*EXP((E00-E(J))/TEV)*(B(J)-B(I))
-C
-C     COOLING RATE IN ERG CM**3 / S
-C
-      EM(I,J)=C1*FB
-      HC=HC+EM(I,J)*XEL
-      K=K+1
-      FD=(1.-wd(r))*B(I)-FIN*(B(J)*EXP((E(I)-E(J))/TEV)-B(I))
-      if(ion.eq.-5) then
-         fac2=FIN*(B(J)*EXP((E(I)-E(J))/TEV)-B(I))
-         write(6,9220)i,j,wd(r),fin,fac2,fd
- 9220    format(' hloss2 ',2i5,1pe12.3,10e12.3)
-      endif
-C     CONTRIBUTION TO LINE PROFILE
-      SOURCE=0.
-      IF(EIJ/TEV.LT.700.) SOURCE=2.031E-04*EIJ**3/
-     &                         (B(J)*EXP(EIJ/TEV)/B(I)-1.)
-C     CONVERT TO INTENSITY/ ANGSTROM
-      SOURCE=3.E18*SOURCE/WL(J,I)**2
-      T0=TOP(J,I)
-C
-C     OBSERVED FLUX AT INFINITY
-C
-      IF(K.GT.400) GOTO 100
-      SR(K)=(1.-EXP(-T0))*SOURCE
-      WEQ(K)=C1*FA*FD/DEN
-      WOBS(I,J)=C1*FA*FD/DEN
-      if(ion.eq.5.and.ipre.eq.1.and.te.lt.1.5e4) then
-         write(6,9221)i,j,k,esc(i,j),pd,c(j,i),b(j),b(i),em(i,j),
-     &        wobs(i,j),weq(k)
- 9221    format(' hloss ',3i5,1pe12.3,20e12.3)
-      endif
-
-      if(ion.eq.3) then
-         if(i.eq.5.and.j.eq.1) then
-c     photoionization rate
-            rn2=(CSAHA*XEL*ABXI*B(NP1)*den/TE**1.5)*G(I)*
-     &           B(I)*EXP((E00-E(I))/TEV)
-            phl=rn2*a(i,j)*pdestr(i,j)
-            phline(47)=(CSAHA*XEL*ABXI*B(NP1)*den/TE**1.5)*G(I)*A(I,J)*
-     &           pdestr(i,j)*(be00-esc(i,j))*B(I)*EXP((E00-E(I))/TEV)
-c            write(6,9323)i,j,abxi,b(np1),rn2,pdest(i,j),pdestr(i,j),
-c     &           b(i),a(i,j),phline(47),phl
- 9323       format('ph584 ',2i6,1pe12.4,10e12.4)
-         endif
-      endif
-      DNI=CSAHA*G(I)*B(I)*B(NP1)*XEL*DEN*EXP((E00-E(I))/TEV)/TE**1.5
-100   CONTINUE
-      RETURN
-      END
 
       double precision function wd(r)
       implicit real*8(a-h,o-z)
@@ -596,137 +288,6 @@ c     &           b(i),a(i,j),phline(47),phl
       return
       end
 
-      SUBROUTINE ATDATH
-      IMPLICIT REAL*8(A-H,O-Z)
-      PARAMETER (NL=340,NLP1=NL+1)
-      include 'param'
-c      PARAMETER (NE1=-100,NE2=250,NE3=NE2+1)
-      COMMON/NBA/NBACK
-      COMMON/A16/SIG(NL),GA(NL),BP(NL)
-      COMMON/NLEV/e00,NION,N,NP1H,NHMAX,NHMIN
-      COMMON/A14/C(NL,NL),CI(NL),G(NL),E(NL),A(NL,NL),
-     &WL(NL,NL),DCDT(NL,NL),DCIDT(NL)
-      COMMON/A26/SIGO(20,NE1:NE2),SIGCA(10,NE1:NE2),SIGHE(16,NE1:NE2),
-     &SIGFE(NL,NE1:NE2),sigfei(nl,ne1:ne2),SIGH(50,NE1:NE2),SIGHE2(50,NE1:NE2)
-      N=200
-      NP1=N+1
-      NP1H=NP1
-c      n=5
-      E00=13.5972
-      E(1)=0.
-      E(2)=10.1981
-      E(3)=12.0866
-      E(4)=12.7477
-      E(5)=13.0536
-      E(6)=13.2198
-      G(1)=2.
-      G(2)=8.
-      G(3)=18.
-      G(4)=32.
-      G(5)=50.
-      G(6)=72.
-      DO I=7,N
-         RN=DBLE(I)
-         G(I)=2.*RN**2.
-         E(I)=E00*(1.-1./RN**2.)
-      enddo
-      G(N+1)=1.
-      DO 5395 I=1,N
-      DO 5394 J=1,N
-      WL(I,J)=0.0
-      IF(I.EQ.J) GOTO 5394
-      IF(E(I).EQ.E(J)) GOTO 5394
-      WL(I,J)=ABS(12398.54/(E(I)-E(J)))
-5394  CONTINUE
-5395  CONTINUE
-C     A:S FROM JOHNSON APJ 174:227
-      DO  I=1,N
-         DO  J=1,N
-            C(I,J)=0.
- 7352       A(I,J)=0.
-         enddo
-      enddo
-      DO J=1,N
-         IMAX=J-1
-         DO I=1,IMAX
-            RN1=DBLE(I)
-            RN2=DBLE(J)
-            X=1.-(RN1/RN2)**2.
-            IF(I.eq.1) then
-               G0=1.1330
-               G1=-.4059
-               G2=0.07014
-            elseIF(I.eq.2) then
-               G0=1.0785
-               G1=-.2319
-               G2=0.02947
-            elseIF(I.ge.3) then
-               G0=.9935+.2328/RN1-.1296/RN1**2.
-               G1=-(.6282-.5598/RN1+.5299/RN1**2.)/RN1
-               G2=(.3887-1.181/RN1+1.470/RN1**2.)/RN1**2.
-            endif
-            GAUNT=1.
-            IF(X.GT.0.) then
-               GAUNT=G0+G1/X+G2/X**2.
-            endif
-            A(J,I)=1.
-            IF(X.gt.0) then
-               A(J,I)=1.57283E10*GAUNT/(RN1*RN2**3.*(RN2**2.-RN1**2.))
-            endif
-         enddo
-      enddo
-
-      GOTO 7362
-      A(3,1)=6.257E8
-      A(4,1)=5.575E7
-      A(5,1)=1.278E7
-      A(6,1)=4.125E6
-      A(7,1)=1.644E6
-      A(4,2)=7.48E6
-      A(5,2)=1.811E6
-      A(6,2)=5.934E5
-      A(7,2)=2.381E5
-C     A(4,3)=3.659E7
-C     A(5,3)=6.602E6
-C     A(6,3)=1.936E6
-C     A(7,3)=7.346E5
-      A(5,4)=1.067E7
-      A(6,4)=2.199E6
-      A(7,4)=7.778E5
-      A(6,5)=2.698E6
-      A(7,5)=7.707E5
-      A(7,6)=1.025E6
-7362  CONTINUE
-C
-C     COLL. IONIZATION RATES FROM DRAKE& ULRICH AP J SUPP 42:351
-C
-      do i=1,n
-         ci(n)=0.
-      enddo
-      CI(1)=4.88E-16
-      CI(2)=1.75E-9
-      CI(3)=6.58E-8
-      CI(4)=3.72E-7
-      CI(5)=1.09E-6
-      CI(6)=2.35E-6
-      CI(7)=4.28E-6
-      CI(8)=7.05E-6
-      CI(9)=1.09E-5
-      CI(10)=1.61E-5
-C
-      TE=1.E4
-      DO I=1,N
-         SIG(I)=7.91*REAL(I)
-      enddo
-      DO I=1,N
-         GA(I)=3.
-      enddo
-      DO I=1,N
-         C(I,I)=0.
-      enddo
-
-      RETURN
-      END
 
       SUBROUTINE ATDATn2(te)
       IMPLICIT REAL*8(A-H,O-Z)
@@ -1004,73 +565,7 @@ c            write(6,9)i,j,wl(j,i),a(j,i),omint,c(i,j),c(j,i)
 
 
 
-      SUBROUTINE ATDATHE
-      IMPLICIT REAL*8(A-H,O-Z)
-      character*80 dum
-      PARAMETER (NL=340,NLP1=NL+1)
-      COMMON/A14/C(NL,NL),CI(NL),G(NL),E(NL),A(NL,NL),
-     &WL(NL,NL),DCDT(NL,NL),DCIDT(NL)
-      COMMON/A27/OM(NL,NL)
-      COMMON/NBA/NBACK
-      COMMON/A16/SIG(NL),GAP(NL),BP(NL)
-      COMMON/NLEV/e00,NION,NH,NP1H,NHMAX,NHMIN
-      COMMON/HEIRECION/AL0(16),BE(16),B0(16),GA(16)
-      N=NHMAX
-      N=16
-      E00=24.5876
-      rewind 25
-      OPEN(25,FILE='./ATDAT/heI.dat',status='old')
-      read(25,987)dum
-      read(25,987)dum
-987   format(a)
-      do  i=1,n
-         read(25,*)nn,wn,g(i),al0(i),be(i),b0(i),ga(i)
-         e(i)=wn/8065.46d0
-      enddo
-C     HE III
-      G(N+1)=2.
-      DO 5395 I=1,N
-      DO 5394 J=1,N
-      WL(I,J)=0.0
-      IF(I.EQ.J) GOTO 5394
-      IF(E(I).EQ.E(J)) GOTO 5394
-      WL(I,J)=ABS(12398.54/(E(I)-E(J)))
-5394  CONTINUE
-5395  CONTINUE
-      DO I=1,N
-         DO J=1,N
-            OM(I,J)=0.
-            A(I,J)=0.
-         enddo
-      enddo
-      read(25,987)dum
-      read(25,987)dum
-      do i=1,n
-         do j=i+1,n
-            read(25,*)i1,i2,wlq,a(j,i),OM(I,J)
-            a(j,i)=a(j,i)*1.e8
-         enddo
-      enddo
-C
-      SIG(1)=7.91
-      SIG(2)=15.
-      DO I=3,N
-         SIG(I)=7.91*REAL(I)
-      enddo
-      SIG(8)=20.5
-      SIG(9)=20.5
-      GAP(1)=2.99
-      GAP(2)=2.5
-      DO I=3,N
-         GAP(I)=3.
-      enddo
-      GAP(8)=3.56
-      GAP(9)=3.56
-      DO I=1,N
-         C(I,I)=0.
-      enddo
-      RETURN
-      END
+
 
       SUBROUTINE ATDATo_new
       IMPLICIT REAL*8(A-H,O-Z)
@@ -1328,46 +823,6 @@ C
       RETURN
       END
 
-c$$$      SUBROUTINE CRHEI
-c$$$      IMPLICIT REAL*8(A-H,O-Z)
-c$$$      PARAMETER (NL=340,NLP1=NL+1)
-c$$$      include 'param'
-c$$$c      PARAMETER (NE1=-100,NE2=250,NE3=NE2+1)
-c$$$      COMMON/A26/SIGO(20,NE1:NE2),SIGCA(10,NE1:NE2),SIGHE(16,NE1:NE2),
-c$$$     &SIGFE(NL,NE1:NE2),sigfei(nl,ne1:ne2),SIGH(50,NE1:NE2),SIGHE2(50,NE1:NE2)
-c$$$      COMMON/FRE/NINT,JMIN,JJ
-c$$$      COMMON/INT/FL(2,NE1:NE2),SI(14,27,NE1:NE2),E1(NE1:NE3),E(NE1:NE3)
-c$$$      COMMON/SIK/SK(14,27,NE1:NE2)
-c$$$      dimension a0(10), a1(10), a2(10), wl0(12), gi(12)
-c$$$c     He I cross sections from D. Koester et al. A&A 149, 423 (1985)
-c$$$      data a0/ -58.229,  -67.310,    -68.438,   -68.936,    -92.020,
-c$$$     &         -63.778,  -63.408,    -61.027,   -83.287,    -76.903/
-c$$$      data a1/  4.3965,   6.1831,     5.7453,    5.2666,     10.313,
-c$$$     &          4.5102,   3.8797,     3.1833,	 7.1751,     6.3639/
-c$$$      data a2/-0.22134, -0.32244,   -0.26277,  -0.15812,   -0.45090,
-c$$$     &        -0.18213, -0.12479,  -0.043675,  -0.20821,   -0.21565/
-c$$$      data wl0/0.00, 159850.318, 166271.70, 169081.189, 171129.148,
-c$$$     &                183231.08, 185559.085, 186095.90, 190292.46,
-c$$$     &                191211.42, 191438.83,  191446.61/
-c$$$      data gi/1, 3, 1, 9, 3, 3, 9, 15, 3, 9, 15, 21/
-c$$$      DO J1=JMIN,JJ
-c$$$         EN=E1(J1)
-c$$$         SIGHE(1,J1)=SK(2,1,J1)
-c$$$         do j=2,8
-c$$$            wl=12398.54/e1(j1)
-c$$$            sighe(j,j1) = 0.
-c$$$            wlion = 198310. - wl0(j)
-c$$$            if(wl.lt.1.e8/wlion) then
-c$$$               if(j.le.6) jk=j
-c$$$c     6 is really 3 1S
-c$$$               if(j.eq.7.or.j.eq.8) jk=j+1
-c$$$               sigl = a0(jk) + a1(jk) * log(wl) + a2(jk) * (log(wl))**2
-c$$$               sighe(j,j1) = exp(sigl)/gi(j)
-c$$$            endif
-c$$$         enddo
-c$$$      enddo
-c$$$      RETURN
-c$$$      END
 
       SUBROUTINE CRFEI
       IMPLICIT REAL*8(A-H,O-Z)
@@ -1796,36 +1251,32 @@ C     COLLISIONAL IONIZATION RATES FOR CA II FROM SHINE
 C
 C     COLLISIONAL IONIZATION RATES FOR O I FROM SUMMERS
 C
-3     IF(ION.NE.2) GOTO 4
-      T4=T/1.E4
-      ci=0.
-      IF(N.eq.1) then
-         IF(T.gT.2.E3) then
-            CI=1.09E-10*SQRT(T)*EXP(-1.58E5/T)/(1.+0.1*T/1.58E5)
+ 3    IF(ION.eq.2) then
+         T4=T/1.E4
+         ci=0.
+         IF(N.eq.1) then
+            IF(T.gT.2.E3) then
+               CI=1.09E-10*SQRT(T)*EXP(-1.58E5/T)/(1.+0.1*T/1.58E5)
+            else
+               ci=0.
+            endif
          else
-            ci=0.
+            IF(N.EQ.2) OM=1.68*T4**.956
+            IF(N.EQ.3) OM=.496*T4**.952
+            IF(N.EQ.4) OM=2.54*T4**.920
+            IF(N.EQ.5) OM=1.80*T4**.915
+            IF(N.EQ.6) OM=17.4*T4**.892
+            IF(N.EQ.7) OM=12.3*T4**.885
+            IF(N.EQ.8) OM=54.6*T4**.840
+            IF(N.EQ.9) OM=101.*T4**.806
+            EITEV=DMIN1(700.D0,(-E(N)+E00)*11609./T)
+            CI=8.63E-6*OM*EXP(-EITEV)/(SQRT(T)*G(N))
          endif
-      else
-         IF(N.EQ.2) OM=1.68*T4**.956
-         IF(N.EQ.3) OM=.496*T4**.952
-         IF(N.EQ.4) OM=2.54*T4**.920
-         IF(N.EQ.5) OM=1.80*T4**.915
-         IF(N.EQ.6) OM=17.4*T4**.892
-         IF(N.EQ.7) OM=12.3*T4**.885
-         IF(N.EQ.8) OM=54.6*T4**.840
-         IF(N.EQ.9) OM=101.*T4**.806
-         EITEV=DMIN1(700.D0,(-E(N)+E00)*11609./T)
-         CI=8.63E-6*OM*EXP(-EITEV)/(SQRT(T)*G(N))
       endif
-4     IF(ION.NE.3) GOTO 5
-C     HE I
-c$$$      CALL CIONHE(N,E(N),T,CI)
-5     IF(ION.NE.4) GOTO 6
-      CALL CIONFE(N,E(N),T,CI)
-C     H I
-6     IF(ION.NE.5) GOTO 500
-c$$$      CALL CIONH(N,N0,T,CI)
-500   CONTINUE
+      IF(ION.eq.4) then
+         CALL CIONFE(N,E(N),T,CI)
+      endif
+ 500  continue
       RETURN
       END
 
