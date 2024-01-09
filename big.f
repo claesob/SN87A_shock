@@ -516,41 +516,7 @@ C     OBS! N MUST BE AN ODD NUMBER
       RETURN
       END
 
-      SUBROUTINE ROMB_old(AA,BB,ERR,FI,FAIL,K)
-      IMPLICIT REAL*8(A-H,O-Z)
-      DIMENSION TR(100),W(100)
-      A=DBLE(AA)
-      B=DBLE(BB)
-      DX=(B-A)/2.
-      FI1=0.5*(FX(A)+FX(B))
-      FI2=FX(A+DX)
-      TR(1)=DX*(FI1+FI2)
-      N=1
-      K=1
-      W(1)=4.
-1     FI=TR(1)
-      W(K+1)=4.*W(K)
-      N=2*N
-      K=K+1
-      TDX=DX
-      DX=DX/2.
-      X=A+DX
-      DO I=1,N
-         FI2=FI2+FX(X)
-         X=X+TDX
-      enddo
-      TR(K)=DX*(FI1+FI2)
-      KK=K-1
-      DO J=1,KK
-         M=K-J
-         TR(M)=(W(J)*TR(M+1)-TR(M))/(W(J)-1.)
-      enddo
-      FAIL=ABS(TR(1)-FI)/ABS(TR(1))
-      IF(FAIL-ERR)6,6,4
-4     IF(K-100)1,6,6
-6     FI=TR(1)
-      RETURN
-      END
+
 
       SUBROUTINE SNPAR(TDAY,RPH,TEFF,RLUM)
       IMPLICIT REAL*8(A-H,O-Z)
@@ -699,7 +665,7 @@ c ab = 'cf order' H, He, O, C, N...
       IMPLICIT REAL*8 (A-H,O-Z)
       REAL*8 MR,MSUN,MTOT,MTOTS,MNI,MHE,MOX
 c      PARAMETER (MD=350,MDP1=MD+1)
-      include 'PARAM'
+      include 'param'
       SAVE
       COMMON/IND/II
       COMMON/RADIE/RA(0:MD)
@@ -2076,145 +2042,5 @@ C
       END
 
 
-      subroutine specnorm(t,flnorm)
-c     calculate the spectrum from a hot plasma 
-c
-      implicit real*8 (a-h,o-z)
-      parameter (nwl=1000,ntab=100)
-      common/amw/e(1000),fj(1000),jmax
-      common/cooltab/tetab(ntab),cooltab(ntab),kmax
-      common/initimw/initr,initr2
-      save f
-      dimension f(ntab,nwl),ftot(ntab),flnorm(1000)
-      if(initr2.eq.0) then
-      initr2=1
-c     read emissivities for each temperature the first time the 
-c       routine is called
-      do k=1,ntab
-        do j=2,jmax
-          read(38,*,err=99,end=101)e1,f(k,j)
-          f(k,j)=log10(f(k,j))
-        enddo
-c       read total cooling as fcn of temperature
-        read(38,*,err=99,end=101)tetab(k),coolc,cooltab(k)
-c        write(7,922)tetab(k),coolc,cooltab(k)
-922   format(1pe13.5,5e13.5)
-99      continue
-      enddo
-101   kmax=k-1
-c     check total flux
-      do k=1,kmax
-        ftot(k)=0.
-        do j=2,jmax
-          ftot(k)=ftot(k)+10.**f(k,j)*(e(j)-e(j-1))
-        enddo
-c       write(7,9)k,tetab(k),ftot(k),cooltab(k)
-      enddo      
-9     format(' total emission ',i5,1pe12.4,5e12.4)
-      endif
-c     determine the temperature for which the spectrum is tabulated
-c     for each temperature interval
-      tl=log10(t)
-      do k=1,kmax
-        if(t.lt.tetab(k)) then
-          k1=k-1
-          k2=k
-          goto 123
-        endif
-      enddo
-123   continue
-c     interpolate logaritmically in t
-c     first cooling
-      call coolfun(t,ff,fcl)
-      fl=fcl-ff
-      if(k2.gt.0.and.k2.le.90) then
-        if(k1.ge.0.and.k1.le.90) then
-          t1l=log10(tetab(k1))
-          t2l=log10(tetab(k2))
-        endif
-      endif
-      do j=2,jmax
-        if(t.lt.2.e7) then
-c         now fluxes
-          f1l=f(k1,j)
-          f2l=f(k2,j)
-          y=f1l + (tl - t1l)*(f2l - f1l)/(t2l - t1l)
-          fj(j)=10.**y
-        else
-          fj(j)=exp(-e(j)*1.1609e4/t)
-        endif
-      enddo
-c     normalize
-      ftotn=0.
-      do j=2,jmax
-        ftotn=ftotn+fj(j)*(e(j)-e(j-1))
-c       write(7,9992)j,e(j),fj(j)
- 9992   format(i4,1pe12.4,10e12.4)
-      enddo
-      do j=2,jmax
-        flnorm(j)=fj(j)/ftotn
-      enddo
-c      write(6,*)' ckeck on total energy'
-c      write(6,96)fcheck1,fcheckc,ff,fcheck1-fcheckc
-      return
-      end
 
-      subroutine coolfun(t,ff,fcl)
-      IMPLICIT REAL*8 (A-H,O-Z)
-      parameter (nwl=1000,ntab=100)
-      common/abl/abn(15)
-      common/cooltab/tetab(ntab),cooltab(ntab),kmax
-      data pi/3.141592/
-C     ***************************************************************
-C     *****
-C     FREE-FREE COOLING,(COX&TUCKER AP.J. 157:1157) FOR T>1+7
-C     AND SPITZER TABLE 3.3 FOR GAUNT FACTOR
-C     *****
-C     ***************************************************************
-c     only ff. not used
-      FF=0.
-      DO KK=1,14
-         ZZ=1.
-         IF(KK.EQ.2) ZZ=4.
-         IF(KK.EQ.3) ZZ=36.
-         IF(KK.EQ.4) ZZ=49.
-         IF(KK.EQ.5) ZZ=64.
-         IF(KK.EQ.6) ZZ=100.
-         IF(KK.EQ.7) ZZ=121.
-         IF(KK.EQ.8) ZZ=12.**2
-         IF(KK.EQ.9) ZZ=13.**3.
-         IF(KK.EQ.10) ZZ=14.**2
-         IF(KK.EQ.11) ZZ=16.**2
-         IF(KK.EQ.12) ZZ=18.**2
-         IF(KK.EQ.13) ZZ=20.**2
-         IF(KK.EQ.14) ZZ=26**2
-         GAUNT=-1.08+0.925*LOG10(T/ZZ)-0.085*(LOG10(T/ZZ))**2.
-         ABX=ABn(KK)
-         FF=FF+1.426E-27*ZZ*ABX*GAUNT*SQRT(T)
-      enddo
-c     interpolate
-      tl=log10(t)
-c     determine between which temperatures your t is
-      do k=1,kmax
-        if(t.lt.tetab(k)) then
-        k1=k-1
-        k2=k
-        goto 123
-        endif
-      enddo
-123   continue
-      if(t.lt.2.e7) then
-c     interpolate logaritmically in t
-        t1l=log10(tetab(k1))
-        t2l=log10(tetab(k2))
-        c1l=log10(cooltab(k1))
-        c2l=log10(cooltab(k2))
-        y=c1l + (tl - t1l)*(c2l - c1l)/(t2l - t1l)
-      else
-c       for t > 2.e7 only ff (??). 
-        y= 2.39248E-01*tl- 2.46262E+01
-      endif
-      fcl=10.**y
-      return
-      end
 

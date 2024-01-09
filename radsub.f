@@ -456,7 +456,7 @@ C     COOLING/VOL= F*X(EL)*AB(I)*X(I)*DEN**2. -> cin = weq
 
       IMPLICIT REAL*8(A-H,O-Z)
 c      PARAMETER (MD=350,MDP1=MD+1)
-      include 'PARAM'
+      include 'param'
       COMMON/TAUFBO/TAFB(30,3)
       COMMON/PHY/DENS(MD)
       COMMON/ELEC/DEL(MD)

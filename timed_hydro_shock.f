@@ -2728,7 +2728,7 @@ c     &'  C III (1909) REC.=',E10.3,'  N IV (1486) REC.=',E10.3)
 
       subroutine coldens(k,xtot,tei,deli,filling,dx,cold,coldn,coltot)
       IMPLICIT REAL*8(A-H,O-Z)
-      include 'PARAM'   
+      include 'param'   
       PARAMETER (NFEL=3000)
       parameter (nlp=30000)
       COMMON/IND/I
@@ -3472,7 +3472,7 @@ c               endif
       real*8 function coolf(i,k,ishock,iss,dt,te,dens,xe,
      &     photok,photolm)
       implicit real*8(a-h,o-z)
-      include 'PARAM'
+      include 'param'
       integer stop_tmin
       common/ctime/tcool,trad
       common/mi_te/stop_tmin
@@ -3666,7 +3666,7 @@ c     xion(k,iel,j)=xion(2,iel,j)
 
       subroutine ion_energy(i,chi,nionel,eion)
       implicit real*8(a-h,o-z)
-      include 'PARAM'
+      include 'param'
       common/ionx/xion(md,14,27)
       common/abl/abn(15)
       common/debug/ideb

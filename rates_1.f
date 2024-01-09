@@ -12,7 +12,7 @@ c
 
       subroutine elecdens(ik,xe,ze)
       implicit real*8(a-h,o-z)
-      include 'PARAM'
+      include 'param'
       common/ionx/xion(md,14,27)
       common/abl/abn(15)
       dimension nionel(14)
@@ -37,7 +37,7 @@ c
      &     dtold,dtnew)
       implicit real*8(a-h,o-z)
 
-      include 'PARAM'
+      include 'param'
 
       common/heitau/tauheiold,tauhei,dtauhei
       COMMON/DIF/EM(MD,NE1:NE2),TAU(MD,NE1:NE2),TAUTOT(MD,NE1:NE2),
@@ -62,7 +62,7 @@ c     implicit real*8(a-h,o-z)
 c     real*8 aa(nlp1,nlp1),aaold(nlp1,nlp1),ction,alrec,di,eps,geion
       real*8 aa(nlp1,nlp1),ction,alrec,di,eps,geion
       parameter (nispec=14,iion=26)
-      include 'PARAM'
+      include 'param'
       common/abl/abn(15)
       common/ionx/xion(md,14,27)
       common/ionxold/te_old(md),xion_old(md,14,27)
@@ -240,7 +240,7 @@ c            write(6,911)iel,ion,i,x(i)
       subroutine ctionrate(ik,te,ction)
       implicit real*8(a-h,o-z)
       PARAMETER (NL=340,NLP1=NL+1)
-      include 'PARAM'
+      include 'param'
       common/ionx/xion(md,14,27)
       common/abl/abn(15)
       common/CTIon/ Ctionp(7,4,30)
@@ -770,7 +770,7 @@ C
       COMMON/TRES/EL(14,27),EK(14,27)
       COMMON/ABU/XA(2,100)
       common/abl/abn(15)
-      include 'PARAM'
+      include 'param'
       common/ind/ik
       common/ionx/xion(md,14,27)
       DIMENSION X(100),CHI(100)

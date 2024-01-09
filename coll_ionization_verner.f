@@ -1,14 +1,3 @@
-c$$$      implicit real*8(a-h,o-z)
-c$$$      t=1.e6
-c$$$      do iz=1,28
-c$$$         do in=1,28
-c$$$            call coion_fit(iz,in,t,c)
-c$$$            write(6,9)iz,in,c
-c$$$ 9          format(2i5,1pe12.3,10e12.3)
-c$$$         enddo
-c$$$      enddo
-c$$$      end
-c$$$      
       subroutine coion_fit(iz,in,t,c)
       implicit real*8(a-h,o-z)
 * Version 2, March 24, 1997

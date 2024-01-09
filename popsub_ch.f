@@ -775,7 +775,7 @@ c     IMPLICIT REAL*8 (A-H,O-Z)
       IMPLICIT none
       INTEGER N
 c      PARAMETER (MD=350,MDP1=MD+1)
-      include 'PARAM'
+      include 'param'
       integer nl,nlp1,nfel,nlp,ik,IAGN,ISTAT,ISOBOL,ionq,iel,ion,idep
       integer i,ierr,ilabcfx,im1,imiss,j,k,ioni,ipr
       integer NION,NLEV,NP1H,NMAX,NMIN,ipre,kmax,itime,ideb,kch

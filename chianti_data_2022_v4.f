@@ -1,6 +1,6 @@
       subroutine popchianti_new(iel,ion,te,rltot)
       IMPLICIT none
-      include 'PARAM'
+      include 'param'
       integer nl,nlp1,nfel,nlp,ik,IAGN,ionq,iel,ion,idep
       integer ieli,il,init,initca,initch,initfe,initfei,inith,inithe,ionnr
       integer iout,ipopch,ir,itcon,iu,n,nionel,nmaxh,np1,nq,nrc,nvar

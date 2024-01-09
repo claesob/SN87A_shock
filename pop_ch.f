@@ -3,7 +3,7 @@ c     7 = He II ??
       SUBROUTINE POPchianti(iel,ion,te,XQ,rltot)
       IMPLICIT REAL*8(A-H,O-Z)
 c      PARAMETER (MD=350,MDP1=MD+1)
-      include 'PARAM'
+      include 'param'
       PARAMETER (NL=340,NLP1=NL+1)
       PARAMETER(NFEL=3000)
       parameter (nlp=30000)
@@ -203,7 +203,7 @@ C
       SUBROUTINE POPsimp(iel,ion,Te,XQ,rltot)
       IMPLICIT REAL*8(A-H,O-Z)
 c      PARAMETER (MD=350,MDP1=MD+1)
-      include 'PARAM'
+      include 'param'
       PARAMETER (NL=340,NLP1=NL+1)
       COMMON/INUT/IUY
       COMMON/NION/IONQ
@@ -286,7 +286,7 @@ c         XN(ION,J)=XI(J)
       SUBROUTINE POPO(RS,TSIN,ZS,XQ,PHO,IFPOP)
       IMPLICIT REAL*8(A-H,O-Z)
 c      PARAMETER (MD=350,MDP1=MD+1)
-      include 'PARAM'
+      include 'param'
       PARAMETER (NL=340,NLP1=NL+1)
       COMMON/A19/EM(NL,NL),ESC(NL,NL),TTOT(NL,NL),TOP(NL,NL)
       common/abl/abn(15)
@@ -519,7 +519,7 @@ C     LYMAN BETA FLUORESENCE A LA KWAN AND KROLIK
       SUBROUTINE POPO_new_old(RS,TSIN,ZS,XQ,PHO,IFPOP)
       IMPLICIT REAL*8(A-H,O-Z)
 c      PARAMETER (MD=350,MDP1=MD+1)
-      include 'PARAM'
+      include 'param'
       PARAMETER (NL=340,NLP1=NL+1)
       COMMON/A19/EM(NL,NL),ESC(NL,NL),TTOT(NL,NL),TOP(NL,NL)
       common/abl/abn(15)
@@ -732,7 +732,6 @@ C     LYMAN BETA FLUORESENCE A LA KWAN AND KROLIK
       SUBROUTINE POPO_new(RS,TSIN,ZS,XQ,PHO,IFPOP)
       IMPLICIT REAL*8(A-H,O-Z)
 c      PARAMETER (MD=350,MDP1=MD+1)
-c      include 'PARAM'
 c      PARAMETER (NL=340,NLP1=NL+1)
       include "parameters.h"
       COMMON/A19/EM(NL,NL),ESC(NL,NL),TTOT(NL,NL),TOP(NL,NL)
@@ -819,19 +818,6 @@ C
          G2=5.
          G3=1.
          TEV=TS/1.1609E4
-c$$$         IF(13.6/TEV.GT.700.) GOTO 777
-c$$$         XN1=G1*BB(NP1)*DEL(IK)*C1*DEN*EXP(13.60/TEV)*BB(1)/TS**1.5
-c$$$         PHN1=XN1*PHE(1)
-c$$$         XN2=G2*BB(NP1)*DEL(IK)*C1*DEN*EXP(11.657/TEV)*BB(2)/TS**1.5
-c$$$         PHN2=XN2*PHE(2)
-c$$$C     XN3=G3*BB(NP1)*DEL(IK)*C1*DEN*EXP(9.446/TEV)*BB(3)/TS**1.5
-c$$$         PHN3=XN3*PHE(3)
-c$$$ 777     PHH=PHN1+PHN2+PHN3
-c$$$         IF(ITERA.GT.1) then
-c            XELEC=ABn(5)*BB(NP1)*XQ+ZMETAL
-c         else
-c            xelec = 0.5
-c         endif
 
          CALL COLLEX(IONQ,TS)
 

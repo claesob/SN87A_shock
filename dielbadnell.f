@@ -143,15 +143,6 @@ c     &                 dielbadn(iel,ion),altotbadn(iel,ion)
          endif
       enddo
       
-c$$$      do   iel=14,20,2
-c$$$         do ion=2,iel+1
-c$$$            call rr_fits_badnell(iel,ion,te,rrec)
-c$$$            if(rrec > 0.) then
-c$$$               alrecbadn(iel,ion)=rrec
-c$$$               altotbadn(iel,ion)=alrecbadn(iel,ion)+dielbadn(iel,ion)
-c$$$            endif
-c$$$         enddo
-c$$$      enddo
       return
       end
       

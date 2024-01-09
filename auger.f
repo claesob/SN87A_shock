@@ -1,6 +1,5 @@
       SUBROUTINE AUGION(iel,IZMAX,xel,XA)
       IMPLICIT REAL*8(A-H,O-Z)
-c     PARAMETER (MD=300,MDP1=MD+1)
       include "parameters.h"
 
       parameter (mh=2,mhe=3,mc=7,mn=8,mo=9,mne=11,mna=12,mmg=13,
@@ -47,40 +46,14 @@ c     set up ionization balance
             aa(i,j)=0.
          enddo
       enddo
-c$$$      do ion=1,izmax
-c$$$         if(iel==8) then
-c$$$            alrec(ion)=alo(ion)
-c$$$         elseif(iel==10) then
-c$$$            alrec(ion)=alne(ion)
-c$$$         elseif(iel==12) then
-c$$$            alrec(ion)=almg(ion)
-c$$$         elseif(iel==14) then
-c$$$            alrec(ion)=alsi(ion)
-c$$$         elseif(iel==16) then
-c$$$            alrec(ion)=alsu(ion)
-c$$$         elseif(iel==18) then
-c$$$            alrec(ion)=alar(ion)
-c$$$         endif
-c         write(6,91)iel,ion,alrec(ion),(zion(iel,ion,is),is=1,5)
-c 91      format('Auger  ',2i5,1pe11.3,10e11.3)
-c      enddo
 
 c rates from ion to ion+ion+j, includig auger fractions from Kaastra & Mewe
       do ion=1,izmax
          ztot(ion)=0.
          ztot2=0.
          do i=1,ns(iel,ion)
-c$$$            do j=1,kmax(iel,ion,i)
-c$$$               phrate(ion,ion+j)=zsa(iel,ion,i)*fr_aug(iel,ion,i,j)
-c$$$               ztot(ion)= phrate(ion,ion+j) + ztot(ion)
-c$$$               write(6,921)ion,i,j,fr_aug(iel,ion,i,j),zsa(iel,ion,i),
-c$$$     &              phrate(ion,ion+j),ztot(ion)
-c$$$ 921           format('ztot ',3i4,1pe12.3,10e12.3)
-c$$$            enddo
             ztot2= zion(iel,ion,i) + ztot2
             ztot(ion)=ztot2
-c            write(6,922)ion,i,zion(iel,ion,i),ztot2
- 922        format('ztot2 ',2i4,1pe12.3,10e12.3)
          enddo
       enddo
 
@@ -164,7 +137,6 @@ c         write(6,9781)i,(aa(i,j),j=1,izmax+1)
       implicit real*8(a-h,o-z)
 c     parameter (md=300,mdp1=md+1)
       include "parameters.h"
-c      include 'PARAM'
       parameter (mh=2,mhe=3,mc=7,mn=8,mo=9,mne=11,mna=12,mmg=13,
      &     mal=14,msi=15,ms=17,mar=19,mca=21,mfe=27,mni=29,
      &     mmat=mh+mhe+mc+mn+mo+mne+mna+mmg+mal+msi+ms+mar+mca+mfe+mni,

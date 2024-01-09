@@ -102,7 +102,7 @@ c!!
       IMPLICIT REAL*8 (A-H,O-Z)
       INTEGER N
 c      PARAMETER (MD=350,MDP1=MD+1)
-      include 'PARAM'
+      include 'param'
 c      PARAMETER (NL=30,NLP1=NL+1)
       COMMON/PHY/DENS(MD)
       COMMON/ELEC/DEL(MD)

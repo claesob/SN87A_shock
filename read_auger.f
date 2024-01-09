@@ -22,47 +22,14 @@ c Note thta iel is the atomic number, ielcf the CF numbering used for fr_aug()
                fr_aug(ielcf,ion,shell,k)=0.
                if(fr(k)>0 .or. k==1) then
                   fr_aug(ielcf,ion,shell,k)=fr(k)
-c$$$c only for test without auger!                  
-c$$$                  if(k==1) then
-c$$$                     fr_aug(ielcf,ion,shell,k)=1.0
-c$$$                  else
-c$$$                     fr_aug(ielcf,ion,shell,k)=0.
-c$$$                  endif
                   kmax(ielcf,ion,shell)=k
-c$$$                  write(6,88)i,ielcf,ion,k,shell,fr_aug(ielcf,ion,shell,k)
-c$$$ 88               format('i,ielcf,ion,k,shell,fr ',5i4,f10.6)
                endif
             enddo
          enddo
  99      continue
          close(86)
          init_augfrac=0
-         
-c$$$         do iel=1,27
-c$$$            do ion=1,iel
-c$$$               if(ns(iel,ion) >= 1) then
-c$$$                  do n=1,ns(iel,ion)
-c$$$c                     write(6,*)'iel,ion,shell,kmax(iel,ion,n) ',iel,ion,
-c$$$c     &                    n,kmax(iel,ion,n)
-c$$$                  enddo
-c$$$               else
-c$$$                  ns(iel,ion)=1
-c$$$                  kmax(iel,ion,1)=1
-c$$$                  fr_aug(iel,ion,1,1)=1.d0
-c$$$c                  write(6,*)'iel,ion,shell,ns(iel,ion),kmax(iel,ion,n)',
-c$$$c     &                    iel,ion,ns(iel,ion),kmax(iel,ion,ns(iel,ion))
-c$$$               endif
-c$$$            enddo
-c$$$         enddo
-
       endif
-c$$$      ielcf=10
-c$$$      do ion=1,14
-c$$$         write(6,*)'ns(ielcf,ion)',ielcf,ion,ns(ielcf,ion)
-c$$$         do i=1,ns(ielcf,ion)
-c$$$            write(6,*)'kmax(ielcf,ion,i) ',kmax(ielcf,ion,i)
-c$$$         enddo
-c$$$      enddo
       return
       end
       
