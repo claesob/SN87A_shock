@@ -6,8 +6,9 @@ the line luminosities from a steady state shock in a metal rich plasma.
 H or He are not included in this version, and no shock precursor is calculated. 
 The ionization stages entyering the shock are set in the program. 
 
-For compiling just run make on the Makefile, where the options for 
-the compiler are set. The compiled code is called shock. 
+For compiling just do make on the Makefile, where the options for 
+the compiler are set. Dependining on your computer you may have to change some 
+options or compiler. It has only been tested on linux. The compiled code is called shock. 
 
 An input file called shock_input.txt is included where different parameters 
 of the calculation are set. Most of these do not need any change. 
